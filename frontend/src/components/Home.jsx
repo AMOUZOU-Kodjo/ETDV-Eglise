@@ -4,7 +4,7 @@ import monImage from "../assets/logo.jpg";
 import Footer from "./Footer";
 import Title from "./Title";
 import NavBar from "./NavBar";
-
+import { Link } from "react-router-dom";
 const socialLinks = [
   {
     icon: <FaFacebook />,
@@ -27,8 +27,8 @@ const socialLinks = [
 const Home = () => {
   return (
     <>
-      
-      <div className="p-5 md:px-[5%]" id="Accueil">
+      <NavBar />
+      <div className="p-5 md:px-[5%]  duration-75 " >
         
 
         <div className="my-10 md:my-20 text-center">
@@ -53,9 +53,13 @@ const Home = () => {
 
             <div className="flex flex-col md:flex-row justify-center md:justify-start items-center gap-6">
 
-              <a href="/contact" className="btn btn-accent">
+              <ul>
+                <li>
+                  <Link to="/contact" className="btn btn-accent">
                 Contactez-nous
-              </a>
+              </Link>
+                </li>
+              </ul>
 
               {/* Réseaux sociaux */}
               <div className="flex gap-4">
@@ -85,7 +89,7 @@ const Home = () => {
         </div>
       </div>
 
-      
+      <Footer/>
     </>
   );
 };

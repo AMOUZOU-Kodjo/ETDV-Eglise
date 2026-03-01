@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaFacebook, FaWhatsapp, FaTwitter, FaYoutube } from "react-icons/fa";
 import monImage from "../assets/logo.jpg";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 const navLinks = [
   { name: "Home", path: "/" },
@@ -9,7 +11,7 @@ const navLinks = [
   { name: "Programs", path: "/programs" },
   { name: "Gallery", path: "/gallery" },
   { name: "Contact", path: "/contact" },
-  { name: "Admin", path: "/admin" },
+  // { name: "Admin", path: "/admin" },
   // { name: "Dashboard", path: "/dashboard" },
   // { name: "AdminDashboard", path: "/dashboardadmin" },
   // { name: "GalleryAdmin", path: "/galleryadmin" }
@@ -18,19 +20,48 @@ const navLinks = [
 
 const socialLinks = [
   { icon: <FaFacebook />, url: "https://www.facebook.com/profile.php?id=61564484227797" },
-  { icon: <FaWhatsapp />, url: "https://wa.me/228910387" },
+  { icon: <FaWhatsapp />, url: "https://wa.me/22891038727" },
   { icon: <FaTwitter />, url: "#" },
   { icon: <FaYoutube />, url: "https://www.youtube.com/@etde815" },
 ];
 
 const Footer = () => {
+   const [media, setMedia] = useState([]);
   const [email, setEmail] = useState("");
+  const [type, setType] = useState("abonnee");
+  const [editId, setEditId] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`Merci pour votre inscription : ${email}`);
-    setEmail("");
+ const API_MEDIA = "http://localhost:3000/media";
+
+  const loadMedia = async () => {
+    const res = await axios.get(API_MEDIA);
+    setMedia(res.data);
   };
+  useEffect(() => {
+      loadMedia();
+    }, []);
+
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email ) return;
+
+    if (editId) {
+      await axios.put(`${API_MEDIA}/${editId}`, { email, type });
+      setEditId(null);
+    } else {
+      await axios.post(API_MEDIA, { email, type });
+    }
+
+    setEmail(""); setType("abonnee");
+    loadPosts();
+  };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   axios.post('http://localhost:3000/media',e)
+  //   alert(`Merci pour votre inscription : ${email}`);
+  //   setEmail("");
+  // };
 
   return (
     <footer className="bg-base-200 text-base-content px-6 py-12">
@@ -58,12 +89,12 @@ const Footer = () => {
           <ul className="grid grid-cols-2 gap-3 ">
             {navLinks.map((link, index) => (
               <li key={index}>
-                <a
-                  href={link.path}
-                  className="hover:text-accent transition duration-500"
+                <Link
+                  to={link.path}
+                  className="hover:text-accent transition duration-500 uppercase"
                 >
-                  {link.name}
-                </a>
+                  {link.name} 
+                </Link>
               </li>
             ))}
           </ul>
@@ -114,7 +145,7 @@ const Footer = () => {
       </div>
 
       <div className="text-center text-sm mt-10 border-t border-gray-400 pt-6">
-        © {new Date().getFullYear()} Temple du Dieu Vivant. Tous droits réservés.
+        © {new Date().getFullYear()} <span className="text-accent bold">Temple du Dieu Vivant</span>. Tous droits réservés.
       </div>
     </footer>
   );

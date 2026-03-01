@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Edit, Trash2, Plus, Users, Calendar, Activity } from 'lucide-react';
+import NavBarAdmin from './NavBarAdmin';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalAbonnes: 1250,
-    totalFideles: 850,
+    totalFideles: 85,
     nouveauxMois: 45,
     pourcentagePresence: 78
   });
@@ -95,9 +96,10 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="bg-base-100 min-h-screen">
+    <> <NavBarAdmin/> 
+    <div className="bg-base-100 min-h-screen p-5 md:px-[5%]">
       {/* En-tête avec bouton de sauvegarde */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-between items-center mb-8">
+      <div className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-4 justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Administration des Données</h1>
         <button 
           onClick={saveAllData}
@@ -264,6 +266,7 @@ const AdminDashboard = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

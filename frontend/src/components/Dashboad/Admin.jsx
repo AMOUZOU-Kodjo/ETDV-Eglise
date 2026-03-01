@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AdminGallery from "./AdminGallery";
 import AdminDashboard from "./AdminDashboard";
-
+import { Link } from "react-router-dom";
+import NavBarAdmin from "./NavBarAdmin";
 const Admin = () => {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState("");
@@ -18,8 +19,8 @@ const Admin = () => {
   const [editMediaId, setEditMediaId] = useState(null);
   const [filterMediaType, setFilterMediaType] = useState("all");
 
-const API_POSTS = "http://localhost:3001/posts";
-const API_MEDIA = "http://localhost:3001/media";
+  const API_POSTS = "http://localhost:3000/posts";
+  const API_MEDIA = "http://localhost:3000/media";
 
   // --- Charger posts et médias ---
   const loadPosts = async () => {
@@ -49,7 +50,9 @@ const API_MEDIA = "http://localhost:3001/media";
       await axios.post(API_POSTS, { title, content, type });
     }
 
-    setTitle(""); setContent(""); setType("message");
+    setTitle("");
+    setContent("");
+    setType("message");
     loadPosts();
   };
 
@@ -59,10 +62,14 @@ const API_MEDIA = "http://localhost:3001/media";
   };
 
   const handleEditPost = (post) => {
-    setTitle(post.title); setContent(post.content); setType(post.type); setEditId(post.id);
+    setTitle(post.title);
+    setContent(post.content);
+    setType(post.type);
+    setEditId(post.id);
   };
 
-  const filteredPosts = filterType === "all" ? posts : posts.filter(p => p.type === filterType);
+  const filteredPosts =
+    filterType === "all" ? posts : posts.filter((p) => p.type === filterType);
 
   // --- Media CRUD ---
   const handleMediaSubmit = async (e) => {
@@ -75,13 +82,19 @@ const API_MEDIA = "http://localhost:3001/media";
     if (mediaFile) formData.append("file", mediaFile);
 
     if (editMediaId) {
-      await axios.put(`${API_MEDIA}/${editMediaId}`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      await axios.put(`${API_MEDIA}/${editMediaId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setEditMediaId(null);
     } else {
-      await axios.post(API_MEDIA, formData, { headers: { "Content-Type": "multipart/form-data" } });
+      await axios.post(API_MEDIA, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
     }
 
-    setMediaTitle(""); setMediaFile(null); setMediaType("photo");
+    setMediaTitle("");
+    setMediaFile(null);
+    setMediaType("photo");
     loadMedia();
   };
 
@@ -91,53 +104,107 @@ const API_MEDIA = "http://localhost:3001/media";
   };
 
   const handleEditMedia = (m) => {
-    setMediaTitle(m.title); setMediaFile(null); setMediaType(m.type); setEditMediaId(m.id);
+    setMediaTitle(m.title);
+    setMediaFile(null);
+    setMediaType(m.type);
+    setEditMediaId(m.id);
   };
 
-  const filteredMedia = filterMediaType === "all" ? media : media.filter(m => m.type === filterMediaType);
+  const filteredMedia =
+    filterMediaType === "all"
+      ? media
+      : media.filter((m) => m.type === filterMediaType);
 
   return (
-    <div className="p-5 md:px-[5%]">
-      <h1 className="text-2xl font-bold mb-5">Dashboard Admin</h1>
+    <>
+      <NavBarAdmin/>  
 
-      {/* POSTS */}
-      <form onSubmit={handlePostSubmit} className="bg-base-200 p-5 rounded-xl shadow-md mb-8">
-        <h2 className="text-xl font-bold mb-4">{editId ? "Modifier un post" : "Ajouter un post"}</h2>
-        <input type="text" placeholder="Titre" value={title} onChange={e => setTitle(e.target.value)} className="input input-bordered w-full mb-3"/>
-        <textarea placeholder="Contenu" value={content} onChange={e => setContent(e.target.value)} className="textarea textarea-bordered w-full mb-3"/>
-        <select value={type} onChange={e => setType(e.target.value)} className="select select-bordered w-full mb-3">
-          <option value="message">Message du jour</option>
-          <option value="news">Nouvelles</option>
-          <option value="verse">Verset biblique</option>
-        </select>
-        <button type="submit" className="btn btn-accent">{editId ? "Modifier" : "Ajouter"}</button>
-      </form>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {["all","message","news","verse"].map(t => (
-          <button key={t} className={`btn ${filterType===t?"btn-accent":"btn-ghost"}`} onClick={()=>setFilterType(t)}>
-            {t==="all"?"Tous":t==="message"?"Messages":t==="news"?"Nouvelles":"Versets"}
+      <div className="p-5 md:px-[5%]">
+        {/* POSTS */}
+        <form
+          onSubmit={handlePostSubmit}
+          className="bg-base-200 p-5 rounded-xl shadow-md mb-8"
+        >
+          <h2 className="text-xl font-bold mb-4">
+            {editId ? "Modifier un post" : "Ajouter un post"}
+          </h2>
+          <input
+            type="text"
+            placeholder="Titre"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="input input-bordered w-full mb-3"
+          />
+          <textarea
+            placeholder="Contenu"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="textarea textarea-bordered w-full mb-3"
+          />
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="select select-bordered w-full mb-3"
+          >
+            <option value="message">Message du jour</option>
+            <option value="news">Nouvelles</option>
+            <option value="verse">Verset biblique</option>
+          </select>
+          <button type="submit" className="btn btn-accent">
+            {editId ? "Modifier" : "Ajouter"}
           </button>
-        ))}
-      </div>
+        </form>
 
-      <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        {filteredPosts.map(post => (
-          <div key={post.id} className="bg-base-100 p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-xl font-bold">{post.title}</h3>
-              <span className="badge badge-primary capitalize">{post.type}</span>
-            </div>
-            <p>{post.content}</p>
-            <div className="flex gap-2">
-              <button className="btn btn-sm btn-warning" onClick={()=>handleEditPost(post)}>Modifier</button>
-              <button className="btn btn-sm btn-error" onClick={()=>handleDeletePost(post.id)}>Supprimer</button>
-            </div>
-          </div>
-        ))}
-      </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {["all", "message", "news", "verse"].map((t) => (
+            <button
+              key={t}
+              className={`btn ${filterType === t ? "btn-accent" : "btn-ghost"}`}
+              onClick={() => setFilterType(t)}
+            >
+              {t === "all"
+                ? "Tous"
+                : t === "message"
+                  ? "Messages"
+                  : t === "news"
+                    ? "Nouvelles"
+                    : "Versets"}
+            </button>
+          ))}
+        </div>
 
-      {/* MÉDIAS
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          {filteredPosts.map((post) => (
+            <div
+              key={post.id}
+              className="bg-base-100 p-5 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-xl font-bold">{post.title}</h3>
+                <span className="badge badge-primary capitalize">
+                  {post.type}
+                </span>
+              </div>
+              <p>{post.content}</p>
+              <div className="flex gap-2">
+                <button
+                  className="btn btn-sm btn-warning"
+                  onClick={() => handleEditPost(post)}
+                >
+                  Modifier
+                </button>
+                <button
+                  className="btn btn-sm btn-error"
+                  onClick={() => handleDeletePost(post.id)}
+                >
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* MÉDIAS
       <form onSubmit={handleMediaSubmit} className="bg-base-200 p-5 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-bold mb-4">{editMediaId ? "Modifier un média" : "Ajouter un média"}</h2>
         <input type="text" placeholder="Titre du média" value={mediaTitle} onChange={e => setMediaTitle(e.target.value)} className="input input-bordered w-full mb-3"/>
@@ -173,9 +240,9 @@ const API_MEDIA = "http://localhost:3001/media";
           </div>
         ))}
       </div> */}
-      <AdminGallery />
-      <AdminDashboard />
-    </div>
+        
+      </div>
+    </>
   );
 };
 

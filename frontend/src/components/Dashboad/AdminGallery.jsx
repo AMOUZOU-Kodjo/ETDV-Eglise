@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit, Save, Image, Video, Music, Download, X } from 'lucide-react';
+import NavBarAdmin from './NavBarAdmin';
 
 const AdminGallery = () => {
   const [activeTab, setActiveTab] = useState('photos');
@@ -146,11 +147,12 @@ const AdminGallery = () => {
   };
 
   return (
-    <div className=" bg-base-100 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Administration de la Galerie</h1>
+    <><NavBarAdmin/> 
+    <div className=" bg-base-100 min-h-screen p-5 md:px-[5%] ">
+      <div className="flex justify-between items-center m-8 ">
+        <h1 className="text-3xl font-bold ">Administration de la Galerie</h1>
       </div>
-
+      
       {/* Onglets d'administration */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <button
@@ -350,6 +352,7 @@ const AdminGallery = () => {
         ))}
       </div>
     </div>
+     </>
   );
 };
 

@@ -12,11 +12,18 @@ import Footer from "./components/Footer";
 import CommunityDashboard from "./components/Dashboad/CommunityDashboard";
 import AdminDashboard from "./components/Dashboad/AdminDashboard";
 import AdminGallery from "./components/Dashboad/AdminGallery";
+import DashAdmin from "./components/Dashboad/DashAdmin"
+import Inscription from "./components/connexion/Inscription";
+
+
 
 const App = () => {
+ 
   return (
+
     <BrowserRouter>
-      <NavBar />
+    
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -28,8 +35,10 @@ const App = () => {
         {/* <Route path="/dashboard" element={<CommunityDashboard />} /> */}
         <Route path="/dashboardadmin" element={<AdminDashboard />} />
         <Route path="/galleryadmin" element={<AdminGallery />} />
+        <Route path ="/dashadmin" element = {<DashAdmin />  } />
+        <Route path="/inscription" element = {<Inscription /> }/> 
       </Routes>
-      <Footer/>
+      
     </BrowserRouter>
   );
 };

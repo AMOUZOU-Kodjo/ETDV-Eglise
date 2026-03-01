@@ -12,7 +12,7 @@ const ContactForm = () => {
 
   // 🔹 Informations de l'église
   const churchInfo = {
-    name: "Église Grâce Divine",
+    name: "Église Temple du Dieu Vivant",
     email: "contact@eglise.com",
     phone: "+228 90 00 00 00",
     address: "Lomé, Togo",
@@ -51,7 +51,7 @@ const ContactForm = () => {
 
       {/* 🔹 Informations de contact */}
       <div className="bg-base-200 p-8 rounded-xl shadow-lg flex flex-col justify-between">
-        <h2 className="text-3xl font-bold mb-6">{churchInfo.name}</h2>
+        <h2 className="text-xl md:text-3xl font-bold mb-6">{churchInfo.name}</h2>
 
         <div className="flex items-center mb-4">
           <Mail className="w-6 h-6 mr-3 text-accent" />
@@ -89,7 +89,7 @@ const ContactForm = () => {
           placeholder="Nom"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="input input-bordered w-full mb-4"
+          className="input input-bordered focus:outline-none focus:ring-0 w-full mb-4"
           required
         />
 
@@ -98,7 +98,7 @@ const ContactForm = () => {
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="input input-bordered w-full mb-4"
+          className="input input-bordered focus:outline-none focus:ring-0 w-full mb-4"
           required
         />
 
@@ -106,7 +106,7 @@ const ContactForm = () => {
           placeholder="Message"
           value={message}
           onChange={e => setMessage(e.target.value)}
-          className="textarea textarea-bordered w-full mb-4"
+          className="textarea textarea-bordered focus:outline-none focus:ring-0 resize-none w-full mb-4 "
           rows={5}
           required
         />

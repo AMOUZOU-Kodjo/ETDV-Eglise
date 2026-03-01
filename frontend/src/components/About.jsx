@@ -25,6 +25,7 @@ const sections = [
 
 const About = () => {
   return (
+    <><NavBar />
     <div className="p-5 md:px-[5%]">
       
 
@@ -54,6 +55,8 @@ const About = () => {
         <CommunityDashboard />
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 

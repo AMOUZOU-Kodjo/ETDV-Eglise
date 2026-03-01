@@ -44,9 +44,11 @@ const weekPrograms = [
 
 const Programs = () => {
   const [activeTab, setActiveTab] = useState('semaine');
-
+  
   return (
+    <><NavBar />
     <div className="p-5 md:px-[5%]">
+
       <div className="my-10 md:my-20">
         <Title title="Nos Programmes" />
       </div>
@@ -148,7 +150,11 @@ const Programs = () => {
         </div>
       )}
     </div>
+    <Footer/>
+    </>
   );
+  
 };
+
 
 export default Programs;

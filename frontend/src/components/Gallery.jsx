@@ -1,12 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { Image, Video, Music, Download, Calendar, Eye, X, Maximize2, Play, Pause, ChevronLeft, ChevronRight, Film, Headphones, Camera } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  Image,
+  Video,
+  Music,
+  Download,
+  Calendar,
+  Eye,
+  X,
+  Maximize2,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
+  Film,
+  Headphones,
+  Camera,
+} from "lucide-react";
+import NavBar from "./NavBar";
+import Footer from "./Footer";
 
 const Gallery = () => {
-  const [activeTab, setActiveTab] = useState('photos');
+
+  
+  const [activeTab, setActiveTab] = useState("photos");
   const [mediaItems, setMediaItems] = useState({
     photos: [],
     videos: [],
-    audios: []
+    audios: [],
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,21 +37,23 @@ const Gallery = () => {
   // Charger les données depuis localStorage
   useEffect(() => {
     const loadMedia = () => {
-      const savedMedia = localStorage.getItem('galleryMedia');
+      const savedMedia = localStorage.getItem("galleryMedia");
       if (savedMedia) {
         setMediaItems(JSON.parse(savedMedia));
       }
     };
 
     loadMedia();
-    window.addEventListener('storage', loadMedia);
-    return () => window.removeEventListener('storage', loadMedia);
+    window.addEventListener("storage", loadMedia);
+    return () => window.removeEventListener("storage", loadMedia);
   }, []);
 
   // Mettre à jour l'index courant
   useEffect(() => {
     if (selectedItem) {
-      const index = mediaItems[activeTab].findIndex(item => item.id === selectedItem.id);
+      const index = mediaItems[activeTab].findIndex(
+        (item) => item.id === selectedItem.id,
+      );
       setCurrentIndex(index);
     }
   }, [selectedItem, activeTab, mediaItems]);
@@ -39,12 +61,12 @@ const Gallery = () => {
   // Empêcher le scroll du body
   useEffect(() => {
     if (selectedItem) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [selectedItem]);
 
@@ -74,13 +96,13 @@ const Gallery = () => {
   const handleDownload = (item, e) => {
     e?.stopPropagation();
     const newMedia = { ...mediaItems };
-    const index = newMedia[activeTab].findIndex(i => i.id === item.id);
+    const index = newMedia[activeTab].findIndex((i) => i.id === item.id);
     if (index !== -1) {
       newMedia[activeTab][index].telechargements++;
-      localStorage.setItem('galleryMedia', JSON.stringify(newMedia));
+      localStorage.setItem("galleryMedia", JSON.stringify(newMedia));
       setMediaItems(newMedia);
-      
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.href = item.url;
       link.download = item.titre;
       link.click();
@@ -112,13 +134,14 @@ const Gallery = () => {
     if (!selectedItem) return null;
 
     return (
+      
       <div
         className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center"
         onClick={closeFullscreen}
       >
         <div
           className="relative w-full h-full"
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Navigation */}
           {currentIndex > 0 && (
@@ -129,7 +152,7 @@ const Gallery = () => {
               <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
             </button>
           )}
-          
+
           {currentIndex < mediaItems[activeTab].length - 1 && (
             <button
               onClick={() => navigateMedia(1)}
@@ -140,11 +163,15 @@ const Gallery = () => {
           )}
 
           {/* En-tête */}
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-2 sm:p-4 z-10">
+          <div className="absolute top-0 left-0 right-0 bg-linear-to-b from-black/70 to-transparent p-2 sm:p-4 z-10">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <div className="text-white flex-1 min-w-0">
-                <h2 className="text-base sm:text-lg md:text-2xl font-bold truncate">{selectedItem.titre}</h2>
-                <p className="text-xs sm:text-sm opacity-80 line-clamp-1">{selectedItem.description}</p>
+                <h2 className="text-base sm:text-lg md:text-2xl font-bold truncate">
+                  {selectedItem.titre}
+                </h2>
+                <p className="text-xs sm:text-sm opacity-80 line-clamp-1">
+                  {selectedItem.description}
+                </p>
               </div>
               <div className="flex gap-2 justify-end">
                 <button
@@ -160,7 +187,7 @@ const Gallery = () => {
                 >
                   <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                   <span className="text-xs sm:text-sm hidden sm:inline">
-                    {fullscreen ? 'Quitter' : 'Plein écran'}
+                    {fullscreen ? "Quitter" : "Plein écran"}
                   </span>
                 </button>
                 <button
@@ -175,15 +202,15 @@ const Gallery = () => {
 
           {/* Contenu principal */}
           <div className="w-full h-full flex items-center justify-center p-2 sm:p-4">
-            {activeTab === 'photos' && (
+            {activeTab === "photos" && (
               <img
                 src={selectedItem.url}
                 alt={selectedItem.titre}
                 className="max-w-full max-h-full object-contain"
               />
             )}
-            
-            {activeTab === 'videos' && (
+
+            {activeTab === "videos" && (
               <div className="w-full h-full">
                 <video
                   src={selectedItem.url}
@@ -197,8 +224,8 @@ const Gallery = () => {
                 </video>
               </div>
             )}
-            
-            {activeTab === 'audios' && (
+
+            {activeTab === "audios" && (
               <div className="max-w-4xl w-full mx-auto text-center p-4">
                 <div className="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-8">
                   <div className="absolute inset-0 bg-linear-to-r from-green-500 to-teal-500 rounded-full animate-pulse"></div>
@@ -234,18 +261,18 @@ const Gallery = () => {
     const banners = {
       photos: {
         icon: Camera,
-        gradient: 'from-blue-600/20 to-purple-600/20',
-        iconColor: 'text-blue-500',
+        gradient: "from-blue-600/20 to-purple-600/20",
+        iconColor: "text-blue-500",
       },
       videos: {
         icon: Film,
-        gradient: 'from-red-600/20 to-orange-600/20',
-        iconColor: 'text-red-500',
+        gradient: "from-red-600/20 to-orange-600/20",
+        iconColor: "text-red-500",
       },
       audios: {
         icon: Headphones,
-        gradient: 'from-green-600/20 to-teal-600/20',
-        iconColor: 'text-green-500',
+        gradient: "from-green-600/20 to-teal-600/20",
+        iconColor: "text-green-500",
       },
     };
 
@@ -253,13 +280,18 @@ const Gallery = () => {
     const Icon = banner.icon;
 
     return (
-      <div className={`absolute inset-0 bg-linear-to-br ${banner.gradient} flex items-center justify-center`}>
-        <Icon className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 ${banner.iconColor} opacity-50`} />
+      <div
+        className={`absolute inset-0 bg-linear-to-br ${banner.gradient} flex items-center justify-center`}
+      >
+        <Icon
+          className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 ${banner.iconColor} opacity-50`}
+        />
       </div>
     );
   };
 
   return (
+    <><NavBar />
     <div className="p-3 sm:p-5 md:px-[5%] bg-base-100 min-h-screen">
       {/* En-tête */}
       <div className="text-center mb-8 sm:mb-12">
@@ -267,32 +299,39 @@ const Gallery = () => {
           Notre Galerie
         </h1>
         <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-4">
-          Découvrez les moments forts de notre communauté à travers photos, vidéos et enseignements audio
+          Découvrez les moments forts de notre communauté à travers photos,
+          vidéos et enseignements audio
         </p>
       </div>
 
       {/* Onglets de navigation */}
       <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
         <button
-          onClick={() => setActiveTab('photos')}
-          className={`btn ${activeTab === 'photos' ? 'btn-primary' : 'btn-outline'} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
+          onClick={() => setActiveTab("photos")}
+          className={`btn ${activeTab === "photos" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
         >
           <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">Photos ({mediaItems.photos?.length || 0})</span>
+          <span className="text-xs sm:text-sm">
+            Photos ({mediaItems.photos?.length || 0})
+          </span>
         </button>
         <button
-          onClick={() => setActiveTab('videos')}
-          className={`btn ${activeTab === 'videos' ? 'btn-primary' : 'btn-outline'} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
+          onClick={() => setActiveTab("videos")}
+          className={`btn ${activeTab === "videos" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
         >
           <Film className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">Vidéos ({mediaItems.videos?.length || 0})</span>
+          <span className="text-xs sm:text-sm">
+            Vidéos ({mediaItems.videos?.length || 0})
+          </span>
         </button>
         <button
-          onClick={() => setActiveTab('audios')}
-          className={`btn ${activeTab === 'audios' ? 'btn-primary' : 'btn-outline'} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
+          onClick={() => setActiveTab("audios")}
+          className={`btn ${activeTab === "audios" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
         >
           <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">Audios ({mediaItems.audios?.length || 0})</span>
+          <span className="text-xs sm:text-sm">
+            Audios ({mediaItems.audios?.length || 0})
+          </span>
         </button>
       </div>
 
@@ -300,7 +339,9 @@ const Gallery = () => {
       <div className="mt-6 sm:mt-8">
         {mediaItems[activeTab]?.length === 0 ? (
           <div className="text-center py-8 sm:py-12">
-            <p className="text-sm sm:text-base text-gray-500">Aucun {activeTab} disponible pour le moment</p>
+            <p className="text-sm sm:text-base text-gray-500">
+              Aucun {activeTab} disponible pour le moment
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -310,11 +351,11 @@ const Gallery = () => {
                 className="bg-base-200 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
               >
                 {/* Aperçu direct selon le type */}
-                <div 
+                <div
                   className="relative h-48 sm:h-56 lg:h-64 overflow-hidden cursor-pointer"
                   onClick={() => openFullscreen(item)}
                 >
-                  {activeTab === 'photos' && (
+                  {activeTab === "photos" && (
                     <>
                       <img
                         src={item.url}
@@ -323,15 +364,17 @@ const Gallery = () => {
                         loading="lazy"
                       />
                       {/* Overlay avec titre au survol */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <h3 className="text-white font-bold text-lg truncate">{item.titre}</h3>
+                          <h3 className="text-white font-bold text-lg truncate">
+                            {item.titre}
+                          </h3>
                         </div>
                       </div>
                     </>
                   )}
-                  
-                  {activeTab === 'videos' && (
+
+                  {activeTab === "videos" && (
                     <div className="relative w-full h-full">
                       <video
                         src={item.url}
@@ -358,8 +401,8 @@ const Gallery = () => {
                       </div>
                     </div>
                   )}
-                  
-                  {activeTab === 'audios' && (
+
+                  {activeTab === "audios" && (
                     <div className="relative w-full h-full bg-gradient-to-br from-green-600/30 to-teal-600/30">
                       {/* Visualisation audio */}
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -367,18 +410,17 @@ const Gallery = () => {
                           {[...Array(20)].map((_, i) => (
                             <div
                               key={i}
-                              className={`w-2 bg-green-500 rounded-t-full transition-all duration-300 ${
-                                playingAudio === item.id ? 'animate-pulse' : ''
-                              }`}
+                              className={`w-2 bg-green-500 rounded-t-full transition-all duration-300 ${playingAudio === item.id ? "animate-pulse" : ""
+                                }`}
                               style={{
                                 height: `${Math.sin(i * 0.5) * 30 + 40}%`,
-                                animationDelay: `${i * 0.1}s`
+                                animationDelay: `${i * 0.1}s`,
                               }}
                             />
                           ))}
                         </div>
                       </div>
-                      
+
                       {/* Contrôles audio */}
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -410,7 +452,7 @@ const Gallery = () => {
                   )}
 
                   {/* Badge de type (pour photos) */}
-                  {activeTab === 'photos' && (
+                  {activeTab === "photos" && (
                     <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                       <Camera className="w-3 h-3" />
                       <span>Photo</span>
@@ -421,7 +463,9 @@ const Gallery = () => {
                 {/* Informations compactes */}
                 <div className="p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-sm truncate flex-1">{item.titre}</h3>
+                    <h3 className="font-semibold text-sm truncate flex-1">
+                      {item.titre}
+                    </h3>
                     <button
                       onClick={(e) => handleDownload(item, e)}
                       className="btn btn-xs btn-circle btn-ghost text-primary hover:bg-primary/20"
@@ -430,11 +474,13 @@ const Gallery = () => {
                       <Download className="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      <span>{new Date(item.date).toLocaleDateString('fr-FR')}</span>
+                      <span>
+                        {new Date(item.date).toLocaleDateString("fr-FR")}
+                      </span>
                     </div>
                     <span>{item.telechargements} téléchargements</span>
                   </div>
@@ -452,7 +498,7 @@ const Gallery = () => {
             <div className="flex items-center gap-3">
               <Headphones className="w-5 h-5 text-green-500" />
               <span className="font-medium text-sm">
-                {mediaItems.audios.find(a => a.id === playingAudio)?.titre}
+                {mediaItems.audios.find((a) => a.id === playingAudio)?.titre}
               </span>
             </div>
             <audio
@@ -461,7 +507,10 @@ const Gallery = () => {
               className="w-96"
               onEnded={() => setPlayingAudio(null)}
             >
-              <source src={mediaItems.audios.find(a => a.id === playingAudio)?.url} type="audio/mpeg" />
+              <source
+                src={mediaItems.audios.find((a) => a.id === playingAudio)?.url}
+                type="audio/mpeg"
+              />
             </audio>
             <button
               onClick={() => setPlayingAudio(null)}
@@ -476,6 +525,8 @@ const Gallery = () => {
       {/* Plein écran */}
       {renderFullscreen()}
     </div>
+    <Footer/>
+    </>
   );
 };
 
