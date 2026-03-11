@@ -38,7 +38,7 @@ const About = () => {
         {sections.map((section, index) => (
           <div
             key={index}
-            className="bg-base-200 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300"
+            className="bg-base-200 border-l-4 border-yellow-500 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300"
           >
             <h2 className="text-2xl font-bold text-accent mb-4 text-center">
               {section.title}

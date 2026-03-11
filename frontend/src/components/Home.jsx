@@ -38,7 +38,7 @@ const Home = () => {
         <div className="flex flex-col-reverse md:flex-row justify-center items-center gap-10">
 
           {/* Texte */}
-          <div className="md:w-3/4 bg-base-200 text-base-content p-8 rounded-2xl shadow-lg">
+          <div className="md:w-3/4 border-l-4 border-yellow-500 bg-base-200 text-base-content p-8 rounded-2xl shadow-lg">
             <p>
               Nous sommes heureux de vous accueillir sur le site officiel de
               notre communauté chrétienne. Ici, chaque âme est précieuse,

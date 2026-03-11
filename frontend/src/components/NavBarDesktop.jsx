@@ -7,7 +7,7 @@ const NavBarDesktop = () => {
       <li>
         <Link
           to="/"
-          className="text-lg bg-secondary p-1.5 rounded-sm visibility-hidden sm:visibility-visible opacity-0 sm:opacity-100 sm:text-xl hover:text-accent transition-colors duration-300"
+          className="text-lg  p-1.5 rounded-sm visibility-hidden sm:visibility-visible opacity-0 sm:opacity-100 sm:text-xl hover:text-accent transition-colors duration-300"
         >
           Home
         </Link>

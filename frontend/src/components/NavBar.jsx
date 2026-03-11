@@ -8,7 +8,7 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="items-center flex font-bold justify-between bg-base-200 text-white text-3xl p-4 sticky top-0 z-50 shadow-lg">
+    <div className="items-center flex font-bold justify-between bg-base-200 text-[--text-accent] text-3xl p-4 sticky top-0 z-50 shadow-lg">
       <Link to="/" className="flex items-center font-bold text-xl sm:text-2xl md:text-3xl">
         Eglise<span className="text-accent">ETDV</span>
       </Link>

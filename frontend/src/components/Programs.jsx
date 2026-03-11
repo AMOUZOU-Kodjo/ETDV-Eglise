@@ -87,7 +87,7 @@ const Programs = () => {
             {weekPrograms.map((program, index) => (
               <div
                 key={index}
-                className="bg-base-100 p-5 rounded-xl shadow-xl hover:scale-105 transition duration-300"
+                className="bg-base-100 border-l-4 border-yellow-500 p-5 rounded-xl shadow-xl hover:scale-105 transition duration-300"
               >
                 <h2 className="font-bold text-2xl mb-3 uppercase text-blue-500 text-center">
                   {program.day}
@@ -112,15 +112,15 @@ const Programs = () => {
           <h1 className="text-2xl font-bold mb-6">Programme Mensuel</h1>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Ajoutez ici vos données mensuelles */}
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Premier Dimanche</h3>
               <p>Culte d'action de grâce</p>
             </div>
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Deuxième Dimanche</h3>
               <p>Enseignement biblique</p>
             </div>
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Troisième Dimanche</h3>
               <p>Louange et adoration</p>
             </div>
@@ -134,15 +134,15 @@ const Programs = () => {
           <h1 className="text-2xl font-bold mb-6">Programme Annuel</h1>
           <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6">
             {/* Ajoutez ici vos données annuelles */}
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Janvier</h3>
               <p>Jeûne et prière</p>
             </div>
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Avril</h3>
               <p>Célébration de Pâques</p>
             </div>
-            <div className="bg-base-200 p-5 rounded-xl">
+            <div className="bg-base-200 border-l-4 border-yellow-500 p-5 rounded-xl">
               <h3 className="font-bold text-xl">Décembre</h3>
               <p>Concert de Noël</p>
             </div>
