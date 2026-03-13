@@ -13,16 +13,18 @@ const NavBar = () => {
         Eglise<span className="text-accent">ETDV</span>
       </Link>
 
-      {/* Menu Desktop */}
-      <NavBarDesktop />
+      {/* Menu Desktop - visible seulement sur grands écrans */}
+      <div className=" hidden md:flex">
+        <NavBarDesktop />
+      </div>
 
-      {/* Menu Mobile */}
-      <NavBarMobile open={open} setOpen={setOpen} />
-
-      {/* Bouton hamburger */}
-      <button onClick={() => setOpen(!open)} className="sm:hidden z-50">
-        {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
+      {/* Menu Mobile avec bouton hamburger */}
+      <div className="sm:hidden">
+        <button onClick={() => setOpen(!open)} className="z-50">
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+        <NavBarMobile open={open} setOpen={setOpen} />
+      </div>
     </div>
   );
 };

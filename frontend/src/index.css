@@ -19,3 +19,8 @@ html {
   font-family: 'Poppins', sans-serif;
  
 }
+@layer utilities {
+  .sidebar-transition {
+    transition: width 0.3s ease-in-out;
+  }
+}

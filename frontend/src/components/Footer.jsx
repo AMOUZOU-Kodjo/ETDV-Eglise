@@ -64,7 +64,7 @@ const Footer = () => {
   // };
 
   return (
-    <footer className="bg-base-200 text-base-content px-6 py-12">
+    <footer className="bg-base-200  text-black font-bold px-6 py-12 shadow-lg">
       <div className="grid gap-10 md:grid-cols-4">
 
         {/* Logo + Infos */}
@@ -79,19 +79,19 @@ const Footer = () => {
             Eglise Temple du Dieu Vivant <br />
             Tél: +228 91038727 <br />
             Email: etdv@gmail.com <br />
-            Depuis 2000
+            Depuis l'an <span className="text-blue-600 font-bold">2000</span>
           </p>
         </div>
 
         {/* Navigation */}
         <div className="justify-center items-center flex flex-col">
           <h6 className="font-bold mb-4 text-accent ">Navigation</h6>
-          <ul className="grid grid-cols-2 gap-3 ">
+          <ul className="grid grid-cols-2 gap-3 text-center  ">
             {navLinks.map((link, index) => (
               <li key={index}>
                 <Link
                   to={link.path}
-                  className="hover:text-accent transition duration-500 uppercase"
+                  className="hover:text-pink-600  hover:scale-105 transition duration-500 uppercase"
                 >
                   {link.name} 
                 </Link>
@@ -111,8 +111,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 rounded-full border border-accent text-accent
-                  hover:bg-accent hover:text-white hover:-translate-y-1
-                  transition-all duration-300"
+                  hover:bg-accent transition duration-300 hover:scale-105 hover:text-white hover:-translate-y-1"
               >
                 {social.icon}
               </a>
@@ -130,7 +129,7 @@ const Footer = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="px-4 py-2 rounded-lg text-white focus:outline-none bg-base-300"
+              className="px-4 py-2 rounded-lg  focus:outline-none bg-base-300"
             />
             <button
               type="submit"

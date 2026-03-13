@@ -83,7 +83,7 @@ const Home = () => {
             <img
               src={monImage}
               alt="Logo de l'église"
-              className="w-64 h-64 md:w-96 md:h-96 object-cover rounded-full shadow-xl animate-pulse border-4 border-accent"
+              className="w-64 h-64 md:w-96 md:h-96 object-cover rounded-full shadow-xl  border-4 border-accent"
             />
           </div>
         </div>

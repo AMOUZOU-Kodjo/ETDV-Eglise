@@ -14,7 +14,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/"
-            className="text-xl btn  w-3xs bg-cyan-600  hover:bg-accent"
+            className="text-xl btn  w-3xs   hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             Home
@@ -23,7 +23,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/about"
-            className="text-xl    btn w-3xs bg-cyan-600  hover:bg-accent"
+            className="text-xl    btn w-3xs  hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             About
@@ -32,7 +32,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/events"
-            className="text-xl   btn w-3xs bg-cyan-600  hover:bg-accent"
+            className="text-xl   btn w-3xs  hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             Events
@@ -41,7 +41,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/programs"
-            className="text-xl   btn w-3xs bg-cyan-600 hover:bg-accent"
+            className="text-xl   btn w-3xs hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             Programs
@@ -50,7 +50,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/gallery"
-            className="text-xl  btn w-3xs bg-cyan-600 hover:bg-accent"
+            className="text-xl  btn w-3xs hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             Gallery
@@ -59,7 +59,7 @@ const NavBarMobile = ({ open, setOpen }) => {
         <li>
           <Link
             to="/contact"
-            className="text-xl btn w-3xs  bg-cyan-600 hover:bg-accent"
+            className="text-xl btn w-3xs   hover:bg-accent"
             onClick={() => setOpen(false)}
           >
             Contact
