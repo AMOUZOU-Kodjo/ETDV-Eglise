@@ -22,9 +22,12 @@
       "dest": "/frontend/$1"
     }
   ],
+  
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/*.js": {
-      "maxDuration": 10
+    "pages/api/users/**/*.js": {
+      "maxDuration": 30
     }
   }
+
 }
