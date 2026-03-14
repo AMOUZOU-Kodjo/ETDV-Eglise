@@ -1,7 +1,6 @@
 // api/contact.js
 import { Resend } from 'resend';
 
-// Initialisation de Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
@@ -10,17 +9,12 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Gérer les requêtes OPTIONS (pre-flight)
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Vérifier la méthode
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      success: false, 
-      error: 'Méthode non autorisée' 
-    });
+    return res.status(405).json({ error: 'Méthode non autorisée' });
   }
 
   try {
@@ -34,13 +28,11 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log('📧 Tentative d\'envoi:', { name, email });
-
     // Envoi de l'email
     const { data, error } = await resend.emails.send({
       from: 'Formulaire Contact <onboarding@resend.dev>',
       to: ['phipsipy@gmail.com'], // REMPLACEZ ICI
-      subject: `Nouveau message de ${name}`,
+      subject: `📧 Nouveau message de ${name}`,
       html: `
         <h2>Nouveau message de contact</h2>
         <p><strong>Nom:</strong> ${name}</p>
@@ -52,24 +44,14 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      console.error('❌ Erreur Resend:', error);
-      return res.status(400).json({ 
-        success: false, 
-        error: error.message 
-      });
+      console.error('Erreur Resend:', error);
+      return res.status(400).json({ success: false, error: error.message });
     }
 
-    console.log('✅ Email envoyé avec succès:', data);
-    return res.status(200).json({ 
-      success: true, 
-      message: 'Message envoyé avec succès' 
-    });
+    return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error('❌ Erreur serveur:', error);
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Erreur interne du serveur' 
-    });
+    console.error('Erreur serveur:', error);
+    return res.status(500).json({ success: false, error: 'Erreur serveur' });
   }
 }
