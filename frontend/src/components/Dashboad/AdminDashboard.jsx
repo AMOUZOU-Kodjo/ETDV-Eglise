@@ -96,7 +96,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <> <NavBarAdmin/> 
+    <> 
     <div className="bg-base-100 min-h-screen p-5 md:px-[5%]">
       {/* En-tête avec bouton de sauvegarde */}
       <div className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-4 justify-between items-center mb-8">

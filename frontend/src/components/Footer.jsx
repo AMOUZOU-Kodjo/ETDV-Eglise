@@ -327,7 +327,7 @@ const Footer = () => {
         </div>
 
         {/* Bande décorative en haut */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-pink-500 to-accent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-accent via-pink-500 to-accent" />
 
         <div className="container mx-auto px-4 relative z-10">
           {/* Section principale */}
@@ -386,7 +386,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Navigation</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
               </h3>
               
               <ul className="space-y-2">
@@ -511,7 +511,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Newsletter</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
               </h3>
 
               <p className="text-sm text-base-content/70 mb-4">

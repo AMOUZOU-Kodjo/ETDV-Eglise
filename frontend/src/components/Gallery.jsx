@@ -35,12 +35,54 @@ import {
   Edit,
   Plus,
   Upload,
-  AlertCircle
+  AlertCircle,
+  Youtube
 } from "lucide-react";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import toast, { Toaster } from "react-hot-toast";
 
+// ==================== FONCTIONS UTILITAIRES POUR YOUTUBE ====================
+const getYouTubeEmbedUrl = (url) => {
+  if (!url) return null;
+  
+  // Patterns pour différentes URLs YouTube
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&]+)/,
+    /youtu\.be\/([^?]+)/,
+    /youtube\.com\/embed\/([^?]+)/,
+    /youtube\.com\/shorts\/([^?]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+  }
+  
+  return url; // Retourne l'URL originale si ce n'est pas YouTube
+};
+
+const getYouTubeThumbnail = (url) => {
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&]+)/,
+    /youtu\.be\/([^?]+)/,
+    /youtube\.com\/embed\/([^?]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+    }
+  }
+  return null;
+};
+
+const isYouTubeUrl = (url) => {
+  return url?.includes('youtube.com') || url?.includes('youtu.be');
+};
 // ==================== CONFIGURATION ====================
 const GALLERY_CONFIG = {
   itemsPerPage: 12,
@@ -81,6 +123,7 @@ const GALLERY_CONFIG = {
 };
 
 // ==================== DONNÉES DE DÉMONSTRATION ====================
+// ==================== DONNÉES DE DÉMONSTRATION CORRIGÉES ====================
 const DEMO_MEDIA = {
   photos: [
     {
@@ -122,9 +165,11 @@ const DEMO_MEDIA = {
       id: "video1",
       titre: "Message du Pasteur",
       description: "Enseignement sur la foi",
-      url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      // Vidéo de démonstration fonctionnelle
+      url: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      thumbnail: "https://storage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
       date: "2024-03-12",
-      duree: "45:30",
+      duree: "09:56",
       telechargements: 23,
       vues: 567,
       likes: 78,
@@ -134,13 +179,26 @@ const DEMO_MEDIA = {
       id: "video2",
       titre: "Louange et Adoration",
       description: "Moment de louange",
-      url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      thumbnail: "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
       date: "2024-03-09",
-      duree: "32:15",
+      duree: "15:14",
       telechargements: 34,
       vues: 432,
       likes: 65,
       tags: ["louange", "musique"]
+    },
+    {
+      id: "video3",
+      titre: "Nature et Création",
+      description: "La beauté de la création",
+      url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      date: "2024-03-07",
+      duree: "08:45",
+      telechargements: 12,
+      vues: 234,
+      likes: 34,
+      tags: ["nature", "creation"]
     }
   ],
   audios: [
@@ -148,9 +206,10 @@ const DEMO_MEDIA = {
       id: "audio1",
       titre: "Enseignement sur la Prière",
       description: "Comment prier efficacement",
-      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      // Audios de démonstration fonctionnels
+      url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav",
       date: "2024-03-11",
-      duree: "28:45",
+      duree: "01:00",
       telechargements: 56,
       vues: 345,
       likes: 67,
@@ -160,13 +219,25 @@ const DEMO_MEDIA = {
       id: "audio2",
       titre: "Cantique de Louange",
       description: "Chant d'adoration",
-      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+      url: "https://www2.cs.uic.edu/~i101/SoundFiles/PinkPanther60.wav",
       date: "2024-03-07",
-      duree: "15:20",
+      duree: "01:00",
       telechargements: 43,
       vues: 234,
       likes: 54,
       tags: ["chant", "louange"]
+    },
+    {
+      id: "audio3",
+      titre: "Méditation Matinale",
+      description: "Moment de recueillement",
+      url: "https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav",
+      date: "2024-03-05",
+      duree: "01:00",
+      telechargements: 38,
+      vues: 198,
+      likes: 45,
+      tags: ["meditation", "matin"]
     }
   ]
 };
@@ -176,6 +247,27 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
   const [isHovered, setIsHovered] = useState(false);
   const config = GALLERY_CONFIG.colors[type];
   const Icon = type === 'photos' ? Camera : type === 'videos' ? Film : Headphones;
+
+  // Fonctions YouTube (à ajouter avant le return)
+  const isYouTubeUrl = (url) => {
+    return url?.includes('youtube.com') || url?.includes('youtu.be');
+  };
+
+  const getYouTubeThumbnail = (url) => {
+    const patterns = [
+      /youtube\.com\/watch\?v=([^&]+)/,
+      /youtu\.be\/([^?]+)/,
+      /youtube\.com\/embed\/([^?]+)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+      }
+    }
+    return null;
+  };
 
   const formatDuration = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -233,22 +325,49 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
 
         {type === 'videos' && (
           <div className="relative w-full h-full">
-            <video
-              src={item.url}
-              className="w-full h-full object-cover"
-              muted
-              loop
-              onMouseEnter={(e) => e.target.play()}
-              onMouseLeave={(e) => {
-                e.target.pause();
-                e.target.currentTime = 0;
-              }}
-            />
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform group-hover:scale-110">
-                <Play className="w-8 h-8 text-white ml-1" />
-              </div>
-            </div>
+            {isYouTubeUrl(item.url) ? (
+              <>
+                {/* Afficher la miniature YouTube */}
+                <img 
+                  src={getYouTubeThumbnail(item.url) || 'https://img.youtube.com/vi/default.jpg'}
+                  alt={item.titre}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = 'https://img.youtube.com/vi/default.jpg';
+                  }}
+                />
+                {/* Overlay avec bouton play */}
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-red-600/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform group-hover:scale-110">
+                    <Play className="w-8 h-8 text-white ml-1" />
+                  </div>
+                </div>
+                {/* Badge YouTube */}
+                <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                  <Youtube className="w-3 h-3" />
+                  YouTube
+                </div>
+              </>
+            ) : (
+              <>
+                <video
+                  src={item.url}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  onMouseEnter={(e) => e.target.play()}
+                  onMouseLeave={(e) => {
+                    e.target.pause();
+                    e.target.currentTime = 0;
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform group-hover:scale-110">
+                    <Play className="w-8 h-8 text-white ml-1" />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -542,17 +661,31 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
                   />
                 )}
 
-                {type === 'videos' && (
-                  <video
-                    ref={videoRef}
-                    src={item.url}
-                    className="max-w-full max-h-full rounded-lg"
-                    controls
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                    onVolumeChange={() => setIsMuted(videoRef.current?.muted)}
-                  />
-                )}
+               // Dans MediaModal, remplacez la section  par :
+
+{type === 'videos' && (
+  <>
+    {isYouTubeUrl(item.url) ? (
+      <iframe
+        src={getYouTubeEmbedUrl(item.url) + "?autoplay=1&rel=0&modestbranding=1"}
+        className="w-full h-full rounded-lg"
+        title={item.titre}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    ) : (
+      <video
+        ref={videoRef}
+        src={item.url}
+        className="max-w-full max-h-full rounded-lg"
+        controls
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onVolumeChange={() => setIsMuted(videoRef.current?.muted)}
+      />
+    )}
+  </>
+)}
 
                 {type === 'audios' && (
                   <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LegalLayout from "../Layout/LegalLayout";
+import { Link } from "react-router-dom";
 import { HelpCircle, ChevronDown, Search, MessageCircle } from "lucide-react";
 
 const FAQ = () => {

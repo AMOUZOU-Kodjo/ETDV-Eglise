@@ -18,8 +18,8 @@ const LegalLayout = ({ children, title, subtitle, icon: Icon }) => {
   const location = useLocation();
 
   const navigationLinks = [
-    { path: "/mentions-legales", label: "Mentions légales", icon: Scale },
-    { path: "/politique-confidentialite", label: "Politique de confidentialité", icon: Shield },
+    { path: "/legal", label: "Mentions légales", icon: Scale },
+    { path: "/privacy", label: "Politique de confidentialité", icon: Shield },
     { path: "/cgu", label: "Conditions d'utilisation", icon: FileText },
     { path: "/cookies", label: "Politique des cookies", icon: Cookie },
     { path: "/faq", label: "FAQ", icon: HelpCircle },

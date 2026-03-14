@@ -13,6 +13,10 @@
       "type": "verse"
     }
   ],
+  "photos": [],
+    "videos": [],
+    "audios": [],
+  "events": [],
   "media": [
     {
       "id": "fdae",
@@ -22,6 +26,12 @@
     {
       "id": "e414",
       "email": "phipsipy@gmail.com",
+      "type": "abonnee"
+    },
+    {
+      "id": "2088",
+      "email": "phipsipy@gmail.com",
+      "name": "KH",
       "type": "abonnee"
     }
   ]

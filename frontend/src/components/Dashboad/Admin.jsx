@@ -117,7 +117,7 @@ const Admin = () => {
 
   return (
     <>
-      <NavBarAdmin/>  
+       
 
       <div className="p-5 md:px-[5%]">
         {/* POSTS */}
