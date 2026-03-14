@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Image as ImageIcon,
@@ -36,27 +42,27 @@ import {
   Plus,
   Upload,
   AlertCircle,
-  Youtube
+  Youtube,
 } from "lucide-react";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import toast, { Toaster } from "react-hot-toast";
-import ReactPlayer from 'react-player';
+import ReactPlayer from "react-player";
 
 // ==================== FONCTIONS POUR SOUNDCLOUD ====================
 const isSoundCloudUrl = (url) => {
-  return url?.includes('soundcloud.com') || url?.includes('snd.sc');
+  return url?.includes("soundcloud.com") || url?.includes("snd.sc");
 };
 // ==================== FONCTIONS UTILITAIRES POUR YOUTUBE ====================
 const getYouTubeEmbedUrl = (url) => {
   if (!url) return null;
-  
+
   // Patterns pour différentes URLs YouTube
   const patterns = [
     /youtube\.com\/watch\?v=([^&]+)/,
     /youtu\.be\/([^?]+)/,
     /youtube\.com\/embed\/([^?]+)/,
-    /youtube\.com\/shorts\/([^?]+)/
+    /youtube\.com\/shorts\/([^?]+)/,
   ];
 
   for (const pattern of patterns) {
@@ -65,7 +71,7 @@ const getYouTubeEmbedUrl = (url) => {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
   }
-  
+
   return url; // Retourne l'URL originale si ce n'est pas YouTube
 };
 
@@ -73,7 +79,7 @@ const getYouTubeThumbnail = (url) => {
   const patterns = [
     /youtube\.com\/watch\?v=([^&]+)/,
     /youtu\.be\/([^?]+)/,
-    /youtube\.com\/embed\/([^?]+)/
+    /youtube\.com\/embed\/([^?]+)/,
   ];
 
   for (const pattern of patterns) {
@@ -86,7 +92,7 @@ const getYouTubeThumbnail = (url) => {
 };
 
 const isYouTubeUrl = (url) => {
-  return url?.includes('youtube.com') || url?.includes('youtu.be');
+  return url?.includes("youtube.com") || url?.includes("youtu.be");
 };
 // ==================== CONFIGURATION ====================
 const GALLERY_CONFIG = {
@@ -95,7 +101,7 @@ const GALLERY_CONFIG = {
     sm: 640,
     md: 768,
     lg: 1024,
-    xl: 1280
+    xl: 1280,
   },
   colors: {
     photos: {
@@ -103,28 +109,28 @@ const GALLERY_CONFIG = {
       secondary: "from-blue-600/20 to-cyan-600/20",
       accent: "text-blue-500",
       bg: "bg-blue-500/10",
-      hover: "hover:bg-blue-500/20"
+      hover: "hover:bg-blue-500/20",
     },
     videos: {
       primary: "from-red-500 to-orange-500",
       secondary: "from-red-600/20 to-orange-600/20",
       accent: "text-red-500",
       bg: "bg-red-500/10",
-      hover: "hover:bg-red-500/20"
+      hover: "hover:bg-red-500/20",
     },
     audios: {
       primary: "from-green-500 to-teal-500",
       secondary: "from-green-600/20 to-teal-600/20",
       accent: "text-green-500",
       bg: "bg-green-500/10",
-      hover: "hover:bg-green-500/20"
-    }
+      hover: "hover:bg-green-500/20",
+    },
   },
   animationVariants: {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  }
+    exit: { opacity: 0, y: -20 },
+  },
 };
 
 // ==================== DONNÉES DE DÉMONSTRATION ====================
@@ -140,7 +146,7 @@ const DEMO_MEDIA = {
       telechargements: 45,
       vues: 234,
       likes: 56,
-      tags: ["culte", "louange", "dimanche"]
+      tags: ["culte", "louange", "dimanche"],
     },
     {
       id: "photo2",
@@ -151,23 +157,23 @@ const DEMO_MEDIA = {
       telechargements: 32,
       vues: 189,
       likes: 43,
-      tags: ["jeunes", "rencontre", "etude"]
-    }
+      tags: ["jeunes", "rencontre", "etude"],
+    },
   ],
   videos: [
-
     {
       id: "video2",
       titre: "Louange et Adoration",
       description: "Moment de louange",
       url: "https://www.youtube.com/watch?v=YnCuqwnhS0k",
-      thumbnail: "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
+      thumbnail:
+        "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
       date: "2024-03-09",
       duree: "15:14",
       telechargements: 34,
       vues: 432,
       likes: 65,
-      tags: ["louange", "musique"]
+      tags: ["louange", "musique"],
     },
     {
       id: "video3",
@@ -179,8 +185,8 @@ const DEMO_MEDIA = {
       telechargements: 12,
       vues: 234,
       likes: 34,
-      tags: ["nature", "creation"]
-    }
+      tags: ["nature", "creation"],
+    },
   ],
   audios: [
     {
@@ -194,7 +200,7 @@ const DEMO_MEDIA = {
       telechargements: 56,
       vues: 345,
       likes: 67,
-      tags: ["priere", "enseignement"]
+      tags: ["priere", "enseignement"],
     },
     {
       id: "audio2",
@@ -206,28 +212,38 @@ const DEMO_MEDIA = {
       telechargements: 43,
       vues: 234,
       likes: 54,
-      tags: ["chant", "louange"]
+      tags: ["chant", "louange"],
     },
-    
-  ]
+  ],
 };
 
 // ==================== COMPOSANT CARD ====================
-const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isPlaying, onPlay }) => {
+const MediaCard = ({
+  item,
+  type,
+  index,
+  onOpen,
+  onDownload,
+  onLike,
+  isLiked,
+  isPlaying,
+  onPlay,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const config = GALLERY_CONFIG.colors[type];
-  const Icon = type === 'photos' ? Camera : type === 'videos' ? Film : Headphones;
+  const Icon =
+    type === "photos" ? Camera : type === "videos" ? Film : Headphones;
 
   // Fonctions YouTube (à ajouter avant le return)
   const isYouTubeUrl = (url) => {
-    return url?.includes('youtube.com') || url?.includes('youtu.be');
+    return url?.includes("youtube.com") || url?.includes("youtu.be");
   };
 
   const getYouTubeThumbnail = (url) => {
     const patterns = [
       /youtube\.com\/watch\?v=([^&]+)/,
       /youtu\.be\/([^?]+)/,
-      /youtube\.com\/embed\/([^?]+)/
+      /youtube\.com\/embed\/([^?]+)/,
     ];
 
     for (const pattern of patterns) {
@@ -242,7 +258,7 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
   const formatDuration = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleShare = async (e) => {
@@ -252,15 +268,15 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
         await navigator.share({
           title: item.titre,
           text: item.description,
-          url: item.url
+          url: item.url,
         });
-        toast.success('Partagé avec succès !');
+        toast.success("Partagé avec succès !");
       } else {
         await navigator.clipboard.writeText(item.url);
-        toast.success('Lien copié !');
+        toast.success("Lien copié !");
       }
     } catch (error) {
-      toast.error('Erreur lors du partage');
+      toast.error("Erreur lors du partage");
     }
   };
 
@@ -277,11 +293,13 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
       onClick={() => onOpen(item)}
     >
       {/* Bande de couleur */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.primary} z-10`} />
+      <div
+        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.primary} z-10`}
+      />
 
       {/* Aperçu */}
       <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
-        {type === 'photos' && (
+        {type === "photos" && (
           <>
             <img
               src={item.url}
@@ -292,18 +310,20 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
         )}
-
-        {type === 'videos' && (
+        {type === "videos" && (
           <div className="relative w-full h-full">
             {isYouTubeUrl(item.url) ? (
               <>
                 {/* Afficher la miniature YouTube */}
-                <img 
-                  src={getYouTubeThumbnail(item.url) || 'https://img.youtube.com/vi/default.jpg'}
+                <img
+                  src={
+                    getYouTubeThumbnail(item.url) ||
+                    "https://img.youtube.com/vi/default.jpg"
+                  }
                   alt={item.titre}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://img.youtube.com/vi/default.jpg';
+                    e.target.src = "https://img.youtube.com/vi/default.jpg";
                   }}
                 />
                 {/* Overlay avec bouton play */}
@@ -340,86 +360,86 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
             )}
           </div>
         )}
-
         // Dans MediaCard, remplacez la section des audios
-{type === 'audios' && (
-  <div className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}>
-    {isSoundCloudUrl(item.url) ? (
-      // Pour SoundCloud, afficher un aperçu stylisé
-      <>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-orange-500/80 rounded-full flex items-center justify-center">
-            <Play className="w-8 h-8 text-white ml-1" />
-          </div>
-        </div>
-        <div className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <Headphones className="w-3 h-3" />
-          SoundCloud
-        </div>
-        {/* Vague audio décorative */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center gap-1 p-2">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="w-1 bg-orange-500 rounded-t"
-              style={{ height: `${Math.random() * 30 + 10}%` }}
-            />
-          ))}
-        </div>
-      </>
-    ) : (
-      // Votre code existant pour les audios directs
-      <>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-end space-x-1 h-24">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className={`w-1.5 rounded-t-full transition-all duration-300 ${
-                  isPlaying ? 'animate-pulse' : ''
-                }`}
-                style={{
-                  height: `${Math.sin(i * 0.5) * 30 + 40}%`,
-                  backgroundColor: isPlaying ? '#22c55e' : '#94a3b8',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay(item);
-            }}
-            className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+        {type === "audios" && (
+          <div
+            className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}
           >
-            {isPlaying ? (
-              <Pause className="w-8 h-8 text-white" />
+            {isSoundCloudUrl(item.url) ? (
+              // Pour SoundCloud, afficher un aperçu stylisé
+              <>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-orange-500/80 rounded-full flex items-center justify-center">
+                    <Play className="w-8 h-8 text-white ml-1" />
+                  </div>
+                </div>
+                <div className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                  <Headphones className="w-3 h-3" />
+                  SoundCloud
+                </div>
+                {/* Vague audio décorative */}
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center gap-1 p-2">
+                  {[...Array(20)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-orange-500 rounded-t"
+                      style={{ height: `${Math.random() * 30 + 10}%` }}
+                    />
+                  ))}
+                </div>
+              </>
             ) : (
-              <Play className="w-8 h-8 text-white ml-1" />
-            )}
-          </button>
-        </div>
-      </>
-    )}
-  </div>
-)}
+              // Votre code existant pour les audios directs
+              <>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex items-end space-x-1 h-24">
+                    {[...Array(20)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-1.5 rounded-t-full transition-all duration-300 ${
+                          isPlaying ? "animate-pulse" : ""
+                        }`}
+                        style={{
+                          height: `${Math.sin(i * 0.5) * 30 + 40}%`,
+                          backgroundColor: isPlaying ? "#22c55e" : "#94a3b8",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
 
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPlay(item);
+                    }}
+                    className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-8 h-8 text-white" />
+                    ) : (
+                      <Play className="w-8 h-8 text-white ml-1" />
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {/* Badge de type */}
-        <div className={`absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10`}>
+        <div
+          className={`absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10`}
+        >
           <Icon className="w-3 h-3" />
           <span className="capitalize">{type}</span>
         </div>
-
         {/* Badge de durée */}
-        {(type === 'videos' || type === 'audios') && item.duree && (
+        {(type === "videos" || type === "audios") && item.duree && (
           <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
             {item.duree}
           </div>
         )}
-
         {/* Bouton téléchargement rapide */}
         <button
           onClick={(e) => {
@@ -444,9 +464,9 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
               e.stopPropagation();
               onLike(item);
             }}
-            className={`ml-2 ${isLiked ? 'text-red-500' : 'text-base-content/30 hover:text-red-500'}`}
+            className={`ml-2 ${isLiked ? "text-red-500" : "text-base-content/30 hover:text-red-500"}`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
           </motion.button>
         </div>
 
@@ -458,7 +478,7 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              <span>{new Date(item.date).toLocaleDateString('fr-FR')}</span>
+              <span>{new Date(item.date).toLocaleDateString("fr-FR")}</span>
             </div>
             <div className="flex items-center gap-1">
               <Eye className="w-3 h-3" />
@@ -492,7 +512,17 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
 };
 
 // ==================== COMPOSANT MODAL ====================
-const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasPrev, onDownload }) => {
+const MediaModal = ({
+  item,
+  type,
+  isOpen,
+  onClose,
+  onNext,
+  onPrev,
+  hasNext,
+  hasPrev,
+  onDownload,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
@@ -501,7 +531,8 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const config = GALLERY_CONFIG.colors[type];
-  const Icon = type === 'photos' ? Camera : type === 'videos' ? Film : Headphones;
+  const Icon =
+    type === "photos" ? Camera : type === "videos" ? Film : Headphones;
 
   if (!item) return null;
 
@@ -551,15 +582,15 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
         await navigator.share({
           title: item.titre,
           text: item.description,
-          url: item.url
+          url: item.url,
         });
-        toast.success('Partagé avec succès !');
+        toast.success("Partagé avec succès !");
       } else {
         await navigator.clipboard.writeText(item.url);
-        toast.success('Lien copié dans le presse-papiers !');
+        toast.success("Lien copié dans le presse-papiers !");
       }
     } catch (error) {
-      toast.error('Erreur lors du partage');
+      toast.error("Erreur lors du partage");
     }
   };
 
@@ -606,20 +637,28 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
               <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 z-10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg bg-gradient-to-r ${config.primary} bg-opacity-20`}>
+                    <div
+                      className={`p-2 rounded-lg bg-gradient-to-r ${config.primary} bg-opacity-20`}
+                    >
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">{item.titre}</h2>
-                      <p className="text-sm text-white/70">{item.description}</p>
+                      <h2 className="text-xl font-bold text-white">
+                        {item.titre}
+                      </h2>
+                      <p className="text-sm text-white/70">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setLiked(!liked)}
-                      className={`p-2 rounded-full transition-all ${liked ? 'bg-red-500' : 'bg-white/10 hover:bg-white/20'}`}
+                      className={`p-2 rounded-full transition-all ${liked ? "bg-red-500" : "bg-white/10 hover:bg-white/20"}`}
                     >
-                      <Heart className={`w-5 h-5 text-white ${liked ? 'fill-current' : ''}`} />
+                      <Heart
+                        className={`w-5 h-5 text-white ${liked ? "fill-current" : ""}`}
+                      />
                     </button>
                     <button
                       onClick={handleShare}
@@ -651,104 +690,117 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
 
               {/* Contenu principal */}
               <div className="w-full h-full flex items-center justify-center p-16">
-                {type === 'photos' && (
+                {type === "photos" && (
                   <img
                     src={item.url}
                     alt={item.titre}
                     className="max-w-full max-h-full object-contain rounded-lg"
                   />
                 )}
+                // Dans MediaModal, remplacez la section par :
+                {type === "videos" && (
+                  <>
+                    {isYouTubeUrl(item.url) ? (
+                      <iframe
+                        src={
+                          getYouTubeEmbedUrl(item.url) +
+                          "?autoplay=1&rel=0&modestbranding=1"
+                        }
+                        className="w-full h-full rounded-lg"
+                        title={item.titre}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video
+                        ref={videoRef}
+                        src={item.url}
+                        className="max-w-full max-h-full rounded-lg"
+                        controls
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                        onVolumeChange={() =>
+                          setIsMuted(videoRef.current?.muted)
+                        }
+                      />
+                    )}
+                  </>
+                )}
+                {type === "audios" && (
+                  <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">
+                    {isSoundCloudUrl(item.url) ? (
+                      // Lecteur SoundCloud intégré
+                      <div className="space-y-4">
+                        <div className="text-center mb-4">
+                          <h3 className="text-2xl font-bold">{item.titre}</h3>
+                          <p className="text-base-content/70">
+                            {item.description}
+                          </p>
+                        </div>
+                        <ReactPlayer
+                          url={item.url}
+                          width="100%"
+                          height={166}
+                          config={{
+                            soundcloud: {
+                              options: {
+                                auto_play: true,
+                                show_comments: false,
+                                show_artwork: true,
+                                color: "#ff5500",
+                              },
+                            },
+                          }}
+                          onPlay={() => setIsPlaying(true)}
+                          onPause={() => setIsPlaying(false)}
+                          onEnded={() => {
+                            /* Optionnel */
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      // Votre code existant pour les audios directs
+                      <>
+                        <div className="relative w-40 h-40 mx-auto mb-8">
+                          <div
+                            className={`absolute inset-0 bg-linear-to-r ${config.primary} rounded-full animate-pulse`}
+                          />
+                          <Headphones
+                            className={`w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${config.accent}`}
+                          />
+                        </div>
 
-               // Dans MediaModal, remplacez la section  par :
+                        <div className="text-center mb-8">
+                          <h3 className="text-2xl font-bold mb-2">
+                            {item.titre}
+                          </h3>
+                          <p className="text-base-content/70">
+                            {item.description}
+                          </p>
+                        </div>
 
-{type === 'videos' && (
-  <>
-    {isYouTubeUrl(item.url) ? (
-      <iframe
-        src={getYouTubeEmbedUrl(item.url) + "?autoplay=1&rel=0&modestbranding=1"}
-        className="w-full h-full rounded-lg"
-        title={item.titre}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      />
-    ) : (
-      <video
-        ref={videoRef}
-        src={item.url}
-        className="max-w-full max-h-full rounded-lg"
-        controls
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onVolumeChange={() => setIsMuted(videoRef.current?.muted)}
-      />
-    )}
-  </>
-)}
-
-                // Dans MediaModal, remplacez la section audio
-{type === 'audios' && (
-  <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">
-    {isSoundCloudUrl(item.url) ? (
-      // Lecteur SoundCloud intégré
-      <div className="space-y-4">
-        <div className="text-center mb-4">
-          <h3 className="text-2xl font-bold">{item.titre}</h3>
-          <p className="text-base-content/70">{item.description}</p>
-        </div>
-        <ReactPlayer
-          url={item.url}
-          width="100%"
-          height={166}
-          config={{
-            soundcloud: {
-              options: {
-                auto_play: true,
-                show_comments: false,
-                show_artwork: true,
-                color: '#ff5500'
-              }
-            }
-          }}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => {/* Optionnel */}}
-        />
-      </div>
-    ) : (
-      // Votre code existant pour les audios directs
-      <>
-        <div className="relative w-40 h-40 mx-auto mb-8">
-          <div className={`absolute inset-0 bg-gradient-to-r ${config.primary} rounded-full animate-pulse`} />
-          <Headphones className={`w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${config.accent}`} />
-        </div>
-        
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold mb-2">{item.titre}</h3>
-          <p className="text-base-content/70">{item.description}</p>
-        </div>
-
-        <audio
-          ref={audioRef}
-          controls
-          className="w-full"
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-        >
-          <source src={item.url} type="audio/mpeg" />
-        </audio>
-      </>
-    )}
-  </div>
-)}
+                        <audio
+                          ref={audioRef}
+                          controls
+                          className="w-full"
+                          onPlay={() => setIsPlaying(true)}
+                          onPause={() => setIsPlaying(false)}
+                        >
+                          <source src={item.url} type="audio/mpeg" />
+                        </audio>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Panneau d'information */}
               <AnimatePresence>
                 {showInfo && (
                   <motion.div
-                    initial={{ x: '100%' }}
+                    initial={{ x: "100%" }}
                     animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
+                    exit={{ x: "100%" }}
                     transition={{ type: "spring", damping: 20 }}
                     className="absolute right-0 top-0 bottom-0 w-80 bg-base-100 shadow-2xl p-6 overflow-y-auto"
                   >
@@ -769,18 +821,22 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
                       </div>
 
                       <div>
-                        <label className="text-xs opacity-60">Description</label>
+                        <label className="text-xs opacity-60">
+                          Description
+                        </label>
                         <p className="text-sm">{item.description}</p>
                       </div>
 
                       <div>
                         <label className="text-xs opacity-60">Date</label>
-                        <p>{new Date(item.date).toLocaleDateString('fr-FR', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}</p>
+                        <p>
+                          {new Date(item.date).toLocaleDateString("fr-FR", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -793,8 +849,12 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
                           <p className="font-bold text-lg">{item.likes}</p>
                         </div>
                         <div>
-                          <label className="text-xs opacity-60">Téléchargements</label>
-                          <p className="font-bold text-lg">{item.telechargements}</p>
+                          <label className="text-xs opacity-60">
+                            Téléchargements
+                          </label>
+                          <p className="font-bold text-lg">
+                            {item.telechargements}
+                          </p>
                         </div>
                       </div>
 
@@ -818,7 +878,7 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(item.url);
-                            toast.success('URL copiée !');
+                            toast.success("URL copiée !");
                           }}
                           className="btn btn-outline btn-sm w-full gap-2"
                         >
@@ -839,7 +899,13 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
 };
 
 // ==================== COMPOSANT FILTERS ====================
-const FilterBar = ({ tags, selectedTags, onTagToggle, sortBy, onSortChange }) => {
+const FilterBar = ({
+  tags,
+  selectedTags,
+  onTagToggle,
+  sortBy,
+  onSortChange,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -851,7 +917,11 @@ const FilterBar = ({ tags, selectedTags, onTagToggle, sortBy, onSortChange }) =>
         >
           <Filter className="w-4 h-4" />
           <span>Filtres et tri</span>
-          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {isOpen ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </button>
 
         <select
@@ -870,7 +940,7 @@ const FilterBar = ({ tags, selectedTags, onTagToggle, sortBy, onSortChange }) =>
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
@@ -883,8 +953,8 @@ const FilterBar = ({ tags, selectedTags, onTagToggle, sortBy, onSortChange }) =>
                     onClick={() => onTagToggle(tag)}
                     className={`px-3 py-1 text-xs rounded-full transition-all ${
                       selectedTags.includes(tag)
-                        ? 'bg-accent text-white'
-                        : 'bg-base-300 hover:bg-base-400'
+                        ? "bg-accent text-white"
+                        : "bg-base-300 hover:bg-base-400"
                     }`}
                   >
                     #{tag}
@@ -939,7 +1009,7 @@ const Gallery = () => {
   useEffect(() => {
     if (selectedItem) {
       const index = mediaItems[activeTab].findIndex(
-        (item) => item.id === selectedItem.id
+        (item) => item.id === selectedItem.id,
       );
       setCurrentIndex(index);
     }
@@ -963,29 +1033,30 @@ const Gallery = () => {
 
     // Filtre par recherche
     if (search) {
-      items = items.filter(item =>
-        item.titre.toLowerCase().includes(search.toLowerCase()) ||
-        item.description.toLowerCase().includes(search.toLowerCase())
+      items = items.filter(
+        (item) =>
+          item.titre.toLowerCase().includes(search.toLowerCase()) ||
+          item.description.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
     // Filtre par tags
     if (selectedTags.length > 0) {
-      items = items.filter(item =>
-        selectedTags.every(tag => item.tags?.includes(tag))
+      items = items.filter((item) =>
+        selectedTags.every((tag) => item.tags?.includes(tag)),
       );
     }
 
     // Tri
     items.sort((a, b) => {
       switch (sortBy) {
-        case 'date':
+        case "date":
           return new Date(b.date) - new Date(a.date);
-        case 'downloads':
+        case "downloads":
           return b.telechargements - a.telechargements;
-        case 'views':
+        case "views":
           return b.vues - a.vues;
-        case 'likes':
+        case "likes":
           return b.likes - a.likes;
         default:
           return 0;
@@ -1002,7 +1073,9 @@ const Gallery = () => {
     return filteredAndSortedMedia.slice(start, end);
   }, [filteredAndSortedMedia, currentPage]);
 
-  const totalPages = Math.ceil(filteredAndSortedMedia.length / GALLERY_CONFIG.itemsPerPage);
+  const totalPages = Math.ceil(
+    filteredAndSortedMedia.length / GALLERY_CONFIG.itemsPerPage,
+  );
 
   // Réinitialiser la page quand les filtres changent
   useEffect(() => {
@@ -1012,78 +1085,90 @@ const Gallery = () => {
   // Tags uniques
   const allTags = useMemo(() => {
     const tags = new Set();
-    mediaItems[activeTab]?.forEach(item => {
-      item.tags?.forEach(tag => tags.add(tag));
+    mediaItems[activeTab]?.forEach((item) => {
+      item.tags?.forEach((tag) => tags.add(tag));
     });
     return Array.from(tags);
   }, [activeTab, mediaItems]);
 
   // Navigation
-  const navigateMedia = useCallback((direction) => {
-    const newIndex = currentIndex + direction;
-    if (newIndex >= 0 && newIndex < mediaItems[activeTab].length) {
-      setCurrentIndex(newIndex);
-      setSelectedItem(mediaItems[activeTab][newIndex]);
-    }
-  }, [currentIndex, activeTab, mediaItems]);
+  const navigateMedia = useCallback(
+    (direction) => {
+      const newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < mediaItems[activeTab].length) {
+        setCurrentIndex(newIndex);
+        setSelectedItem(mediaItems[activeTab][newIndex]);
+      }
+    },
+    [currentIndex, activeTab, mediaItems],
+  );
 
   // Téléchargement
-  const handleDownload = useCallback((item, e) => {
-    e?.stopPropagation();
-    
-    setMediaItems(prev => {
-      const newMedia = { ...prev };
-      const index = newMedia[activeTab].findIndex(i => i.id === item.id);
-      if (index !== -1) {
-        newMedia[activeTab][index].telechargements++;
-      }
-      return newMedia;
-    });
+  const handleDownload = useCallback(
+    (item, e) => {
+      e?.stopPropagation();
 
-    // Simuler un téléchargement
-    const link = document.createElement("a");
-    link.href = item.url;
-    link.download = item.titre;
-    link.click();
+      setMediaItems((prev) => {
+        const newMedia = { ...prev };
+        const index = newMedia[activeTab].findIndex((i) => i.id === item.id);
+        if (index !== -1) {
+          newMedia[activeTab][index].telechargements++;
+        }
+        return newMedia;
+      });
 
-    toast.success(`Téléchargement de "${item.titre}" démarré !`, {
-      icon: '📥',
-      duration: 3000
-    });
-  }, [activeTab]);
+      // Simuler un téléchargement
+      const link = document.createElement("a");
+      link.href = item.url;
+      link.download = item.titre;
+      link.click();
+
+      toast.success(`Téléchargement de "${item.titre}" démarré !`, {
+        icon: "📥",
+        duration: 3000,
+      });
+    },
+    [activeTab],
+  );
 
   // Like
-  const handleLike = useCallback((item) => {
-    setLikedItems(prev => ({
-      ...prev,
-      [item.id]: !prev[item.id]
-    }));
+  const handleLike = useCallback(
+    (item) => {
+      setLikedItems((prev) => ({
+        ...prev,
+        [item.id]: !prev[item.id],
+      }));
 
-    setMediaItems(prev => {
-      const newMedia = { ...prev };
-      const index = newMedia[activeTab].findIndex(i => i.id === item.id);
-      if (index !== -1) {
-        newMedia[activeTab][index].likes += likedItems[item.id] ? -1 : 1;
-      }
-      return newMedia;
-    });
-
-    if (!likedItems[item.id]) {
-      toast.success('Ajouté à vos favoris !', {
-        icon: '❤️',
-        duration: 2000
+      setMediaItems((prev) => {
+        const newMedia = { ...prev };
+        const index = newMedia[activeTab].findIndex((i) => i.id === item.id);
+        if (index !== -1) {
+          newMedia[activeTab][index].likes += likedItems[item.id] ? -1 : 1;
+        }
+        return newMedia;
       });
-    }
-  }, [activeTab, likedItems]);
+
+      if (!likedItems[item.id]) {
+        toast.success("Ajouté à vos favoris !", {
+          icon: "❤️",
+          duration: 2000,
+        });
+      }
+    },
+    [activeTab, likedItems],
+  );
 
   // Lecture audio
-  const handlePlayAudio = useCallback((item) => {
-    if (playingAudio === item.id) {
-      setPlayingAudio(null);
-    } else {
-      setPlayingAudio(item.id);
-    }
-  }, [playingAudio]);
+  const handlePlayAudio = useCallback(
+    (item) => {
+      if (playingAudio === item.id) {
+        setPlayingAudio(null);
+      } else {
+        setPlayingAudio(item.id);
+      }
+    },
+    [playingAudio],
+  );
 
   return (
     <>
@@ -1093,9 +1178,9 @@ const Gallery = () => {
         toastOptions={{
           duration: 4000,
           style: {
-            background: 'hsl(var(--b1))',
-            color: 'hsl(var(--bc))',
-            border: '1px solid hsl(var(--b3))',
+            background: "hsl(var(--b1))",
+            color: "hsl(var(--bc))",
+            border: "1px solid hsl(var(--b3))",
           },
         }}
       />
@@ -1104,10 +1189,14 @@ const Gallery = () => {
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-base-200 via-base-100 to-base-200 py-20 overflow-hidden">
           <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 1px)',
-              backgroundSize: '40px 40px'
-            }} />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 1px)",
+                backgroundSize: "40px 40px",
+              }}
+            />
           </div>
 
           <div className="container mx-auto px-4 relative z-10">
@@ -1120,7 +1209,8 @@ const Gallery = () => {
                 Notre Galerie
               </h1>
               <p className="text-lg md:text-xl text-base-content/70">
-                Découvrez les moments forts de notre communauté à travers photos, vidéos et enseignements audio
+                Découvrez les moments forts de notre communauté à travers
+                photos, vidéos et enseignements audio
               </p>
             </motion.div>
           </div>
@@ -1144,10 +1234,15 @@ const Gallery = () => {
 
           {/* Onglets */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {['photos', 'videos', 'audios'].map((tab) => {
-              const Icon = tab === 'photos' ? Camera : tab === 'videos' ? Film : Headphones;
+            {["photos", "videos", "audios"].map((tab) => {
+              const Icon =
+                tab === "photos"
+                  ? Camera
+                  : tab === "videos"
+                    ? Film
+                    : Headphones;
               const isActive = activeTab === tab;
-              
+
               return (
                 <motion.button
                   key={tab}
@@ -1157,9 +1252,10 @@ const Gallery = () => {
                   className={`
                     relative px-6 py-3 rounded-full font-medium transition-all
                     flex items-center gap-2 overflow-hidden
-                    ${isActive
-                      ? `text-white shadow-lg bg-gradient-to-r ${GALLERY_CONFIG.colors[tab].primary}`
-                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                    ${
+                      isActive
+                        ? `text-white shadow-lg bg-gradient-to-r ${GALLERY_CONFIG.colors[tab].primary}`
+                        : "bg-base-200 text-base-content/70 hover:bg-base-300"
                     }
                   `}
                 >
@@ -1178,10 +1274,10 @@ const Gallery = () => {
             tags={allTags}
             selectedTags={selectedTags}
             onTagToggle={(tag) => {
-              setSelectedTags(prev =>
+              setSelectedTags((prev) =>
                 prev.includes(tag)
-                  ? prev.filter(t => t !== tag)
-                  : [...prev, tag]
+                  ? prev.filter((t) => t !== tag)
+                  : [...prev, tag],
               );
             }}
             sortBy={sortBy}
@@ -1191,19 +1287,21 @@ const Gallery = () => {
           {/* En-tête de la galerie */}
           <div className="flex justify-between items-center mb-6">
             <p className="text-base-content/60">
-              {filteredAndSortedMedia.length} élément{filteredAndSortedMedia.length > 1 ? 's' : ''} trouvé{filteredAndSortedMedia.length > 1 ? 's' : ''}
+              {filteredAndSortedMedia.length} élément
+              {filteredAndSortedMedia.length > 1 ? "s" : ""} trouvé
+              {filteredAndSortedMedia.length > 1 ? "s" : ""}
             </p>
             <div className="flex gap-2">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'bg-base-200'}`}
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg transition-colors ${viewMode === "grid" ? "bg-accent text-white" : "bg-base-200"}`}
                 title="Vue grille"
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'bg-base-200'}`}
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg transition-colors ${viewMode === "list" ? "bg-accent text-white" : "bg-base-200"}`}
                 title="Vue liste"
               >
                 <List className="w-5 h-5" />
@@ -1222,13 +1320,13 @@ const Gallery = () => {
                 hidden: { opacity: 0 },
                 visible: {
                   opacity: 1,
-                  transition: { staggerChildren: 0.05 }
-                }
+                  transition: { staggerChildren: 0.05 },
+                },
               }}
               className={`grid ${
-                viewMode === 'grid'
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                  : 'grid-cols-1'
+                viewMode === "grid"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "grid-cols-1"
               } gap-6`}
             >
               {paginatedMedia.map((item, index) => (
@@ -1252,7 +1350,7 @@ const Gallery = () => {
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-12">
               <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-2 rounded-lg bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1272,8 +1370,8 @@ const Gallery = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`min-w-[40px] h-10 rounded-lg font-medium transition-all ${
                         currentPage === page
-                          ? 'bg-accent text-white shadow-lg scale-105'
-                          : 'bg-base-200 hover:bg-base-300'
+                          ? "bg-accent text-white shadow-lg scale-105"
+                          : "bg-base-200 hover:bg-base-300"
                       }`}
                     >
                       {page}
@@ -1281,13 +1379,19 @@ const Gallery = () => {
                   );
                 }
                 if (page === currentPage - 3 || page === currentPage + 3) {
-                  return <span key={i} className="px-2">...</span>;
+                  return (
+                    <span key={i} className="px-2">
+                      ...
+                    </span>
+                  );
                 }
                 return null;
               })}
 
               <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-lg bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -1323,12 +1427,17 @@ const Gallery = () => {
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${GALLERY_CONFIG.colors.audios.primary} animate-pulse`} />
+                  <div
+                    className={`w-10 h-10 rounded-full bg-gradient-to-r ${GALLERY_CONFIG.colors.audios.primary} animate-pulse`}
+                  />
                   <Headphones className="w-5 h-5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                 </div>
                 <div>
                   <p className="font-medium">
-                    {mediaItems.audios.find(a => a.id === playingAudio)?.titre}
+                    {
+                      mediaItems.audios.find((a) => a.id === playingAudio)
+                        ?.titre
+                    }
                   </p>
                   <p className="text-xs text-base-content/60">
                     En cours de lecture...
@@ -1343,7 +1452,9 @@ const Gallery = () => {
                 onEnded={() => setPlayingAudio(null)}
               >
                 <source
-                  src={mediaItems.audios.find(a => a.id === playingAudio)?.url}
+                  src={
+                    mediaItems.audios.find((a) => a.id === playingAudio)?.url
+                  }
                   type="audio/mpeg"
                 />
               </audio>
@@ -1358,8 +1469,6 @@ const Gallery = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-    
 
       {/* Styles globaux */}
       <style>{`
