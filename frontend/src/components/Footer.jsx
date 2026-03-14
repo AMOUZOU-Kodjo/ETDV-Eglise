@@ -1,152 +1,590 @@
-import { useEffect, useState } from "react";
-import { FaFacebook, FaWhatsapp, FaTwitter, FaYoutube } from "react-icons/fa";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FaFacebook, 
+  FaWhatsapp, 
+  FaTwitter, 
+  FaYoutube,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaClock,
+  FaHeart,
+  FaArrowUp,
+  FaCheck,
+  FaSpinner,
+  FaExclamationTriangle
+} from "react-icons/fa";
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Clock, 
+  Send, 
+  CheckCircle, 
+  AlertCircle,
+  Loader,
+  Heart,
+  ChevronUp
+} from "lucide-react";
 import monImage from "../assets/logo.jpg";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
-const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/about" },
-  { name: "Events", path: "/events" },
-  { name: "Programs", path: "/programs" },
-  { name: "Gallery", path: "/gallery" },
-  { name: "Contact", path: "/contact" },
-  // { name: "Admin", path: "/admin" },
-  // { name: "Dashboard", path: "/dashboard" },
-  // { name: "AdminDashboard", path: "/dashboardadmin" },
-  // { name: "GalleryAdmin", path: "/galleryadmin" }
-  
-];
+// ==================== CONFIGURATION ====================
+const FOOTER_CONFIG = {
+  API_URL: "http://localhost:3000/media",
+  churchInfo: {
+    name: "Temple du Dieu Vivant",
+    phone: "+228 91 03 87 27",
+    email: "etdv@gmail.com",
+    address: "Lomé, Togo",
+    founded: 2000,
+    hours: [
+      { day: "Lun - Ven", hours: "09:00 - 18:00" },
+      { day: "Samedi", hours: "09:00 - 12:00" },
+      { day: "Dimanche", hours: "08:00 - 12:00" }
+    ]
+  },
+  navigationLinks: [
+    { name: "Accueil", path: "/", icon: "🏠" },
+    { name: "À propos", path: "/about", icon: "📖" },
+    { name: "Événements", path: "/events", icon: "📅" },
+    { name: "Programmes", path: "/programs", icon: "📋" },
+    { name: "Galerie", path: "/gallery", icon: "🖼️" },
+    { name: "Contact", path: "/contact", icon: "📞" }
+  ],
+  socialLinks: [
+    { 
+      icon: FaFacebook, 
+      url: "https://www.facebook.com/profile.php?id=61564484227797",
+      label: "Facebook",
+      color: "hover:bg-[#1877f2]"
+    },
+    { 
+      icon: FaWhatsapp, 
+      url: "https://wa.me/22891038727",
+      label: "WhatsApp",
+      color: "hover:bg-[#25D366]"
+    },
+    { 
+      icon: FaTwitter, 
+      url: "https://twitter.com/etde815",
+      label: "Twitter",
+      color: "hover:bg-[#1DA1F2]"
+    },
+    { 
+      icon: FaYoutube, 
+      url: "https://www.youtube.com/@etde815",
+      label: "YouTube",
+      color: "hover:bg-[#FF0000]"
+    }
+  ],
+  quickLinks: [
+    { name: "Mentions légales", path: "/legal" },
+    { name: "Politique de confidentialité", path: "/privacy" },
+    { name: "FAQ", path: "/faq" },
+    { name: "Support", path: "/support" }
+  ],
+  animationVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  }
+};
 
-const socialLinks = [
-  { icon: <FaFacebook />, url: "https://www.facebook.com/profile.php?id=61564484227797" },
-  { icon: <FaWhatsapp />, url: "https://wa.me/22891038727" },
-  { icon: <FaTwitter />, url: "#" },
-  { icon: <FaYoutube />, url: "https://www.youtube.com/@etde815" },
-];
-
-const Footer = () => {
-   const [media, setMedia] = useState([]);
+// ==================== COMPOSANT NEWSLETTER FORM ====================
+const NewsletterForm = ({ onSubscribe }) => {
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("abonnee");
-  const [editId, setEditId] = useState(null);
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
- const API_MEDIA = "http://localhost:3000/media";
-
-  const loadMedia = async () => {
-    const res = await axios.get(API_MEDIA);
-    setMedia(res.data);
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
-  useEffect(() => {
-      loadMedia();
-    }, []);
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email ) return;
-
-    if (editId) {
-      await axios.put(`${API_MEDIA}/${editId}`, { email, type });
-      setEditId(null);
-    } else {
-      await axios.post(API_MEDIA, { email, type });
+    
+    if (!validateEmail(email)) {
+      setError("Veuillez entrer une adresse email valide");
+      return;
     }
 
-    setEmail(""); setType("abonnee");
-    loadPosts();
+    setLoading(true);
+    setError("");
+
+    try {
+      await onSubscribe({ email, name, type: "abonnee" });
+      setSuccess(true);
+      setEmail("");
+      setName("");
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   axios.post('http://localhost:3000/media',e)
-  //   alert(`Merci pour votre inscription : ${email}`);
-  //   setEmail("");
-  // };
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div>
+        <input
+          type="text"
+          placeholder="Votre nom (optionnel)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-4 py-2 bg-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+        />
+      </div>
+      
+      <div className="relative">
+        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-base-content/40" />
+        <input
+          type="email"
+          placeholder="Votre email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setError("");
+          }}
+          required
+          className={`w-full pl-10 pr-4 py-2 bg-base-300 rounded-lg focus:outline-none focus:ring-2 transition-all ${
+            error ? 'focus:ring-red-500 border-red-500' : 'focus:ring-accent'
+          }`}
+        />
+      </div>
+
+      {error && (
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-red-500 text-xs flex items-center gap-1"
+        >
+          <AlertCircle className="w-3 h-3" />
+          {error}
+        </motion.p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading || success}
+        className={`
+          w-full py-2 rounded-lg font-medium transition-all duration-300
+          flex items-center justify-center gap-2
+          ${success 
+            ? 'bg-green-500 text-white' 
+            : 'bg-accent hover:bg-accent/80 text-white hover:scale-105'
+          }
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
+      >
+        {loading ? (
+          <>
+            <Loader className="w-4 h-4 animate-spin" />
+            <span>Inscription...</span>
+          </>
+        ) : success ? (
+          <>
+            <CheckCircle className="w-4 h-4" />
+            <span>Inscrit !</span>
+          </>
+        ) : (
+          <>
+            <Send className="w-4 h-4" />
+            <span>S'abonner</span>
+          </>
+        )}
+      </button>
+
+      <p className="text-xs text-base-content/50 text-center">
+        En vous inscrivant, vous acceptez de recevoir nos actualités
+      </p>
+    </form>
+  );
+};
+
+// ==================== COMPOSANT BACK TO TOP ====================
+const BackToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      setIsVisible(window.pageYOffset > 300);
+    };
+
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
 
   return (
-    <footer className="bg-base-200  text-black font-bold px-6 py-12 shadow-lg">
-      <div className="grid gap-10 md:grid-cols-4">
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0 }}
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 p-3 bg-accent text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50 group"
+          aria-label="Retour en haut"
+        >
+          <ChevronUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+};
 
-        {/* Logo + Infos */}
-        <div className="space-y-4 text-center md:text-left flex flex-col items-center md:items-start">
-          <img
-            src={monImage}
-            alt="Logo"
-            className="w-16 h-16 rounded-full border-2 border-accent shadow-lg 
-              hover:scale-105 transition-transform duration-300"
-          />
-          <p className="text-sm leading-relaxed">
-            Eglise Temple du Dieu Vivant <br />
-            Tél: +228 91038727 <br />
-            Email: etdv@gmail.com <br />
-            Depuis l'an <span className="text-blue-600 font-bold">2000</span>
-          </p>
+// ==================== COMPOSANT FOOTER ====================
+const Footer = () => {
+  const [media, setMedia] = useState([]);
+  const [stats, setStats] = useState({
+    subscribers: 0,
+    yearFounded: 2000
+  });
+  const [showFullLinks, setShowFullLinks] = useState(false);
+  const location = useLocation();
+
+  // Charger les données
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await axios.get(FOOTER_CONFIG.API_URL);
+        setMedia(res.data);
+        setStats(prev => ({
+          ...prev,
+          subscribers: res.data.filter(item => item.type === "abonnee").length
+        }));
+      } catch (error) {
+        console.error("Erreur de chargement:", error);
+        toast.error("Erreur de chargement des données");
+      }
+    };
+    loadData();
+  }, []);
+
+  // Gérer l'inscription newsletter
+  const handleSubscribe = useCallback(async (data) => {
+    try {
+      const response = await axios.post(FOOTER_CONFIG.API_URL, data);
+      
+      setMedia(prev => [...prev, response.data]);
+      setStats(prev => ({
+        ...prev,
+        subscribers: prev.subscribers + 1
+      }));
+      
+      toast.success("Inscription réussie ! Merci de nous rejoindre.", {
+        icon: '🎉',
+        duration: 4000
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error("Erreur d'inscription:", error);
+      toast.error("Échec de l'inscription. Veuillez réessayer.");
+      throw error;
+    }
+  }, []);
+
+  // Statistiques
+  const yearsActive = useMemo(() => {
+    return new Date().getFullYear() - stats.yearFounded;
+  }, [stats.yearFounded]);
+
+  return (
+    <>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--b1))',
+            color: 'hsl(var(--bc))',
+            border: '1px solid hsl(var(--b3))',
+          },
+        }}
+      />
+
+      <footer className="relative bg-base-200 text-base-content pt-16 pb-8 overflow-hidden">
+        {/* Motif de fond décoratif */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }} />
         </div>
 
-        {/* Navigation */}
-        <div className="justify-center items-center flex flex-col">
-          <h6 className="font-bold mb-4 text-accent ">Navigation</h6>
-          <ul className="grid grid-cols-2 gap-3 text-center  ">
-            {navLinks.map((link, index) => (
-              <li key={index}>
-                <Link
-                  to={link.path}
-                  className="hover:text-pink-600  hover:scale-105 transition duration-500 uppercase"
-                >
-                  {link.name} 
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Bande décorative en haut */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-pink-500 to-accent" />
 
-        {/* Réseaux sociaux */}
-        <div className="justify-center items-center flex flex-col">
-          <h6 className="font-bold mb-4 text-accent ">Suivez-nous</h6>
-          <div className="flex gap-4  ">
-            {socialLinks.map((social, index) => (
-              <a
-                key={index}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-full border border-accent text-accent
-                  hover:bg-accent transition duration-300 hover:scale-105 hover:text-white hover:-translate-y-1"
-              >
-                {social.icon}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div className="justify-center items-center flex flex-col">
-          <h6 className="font-bold mb-4 text-accent">Newsletter</h6>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <input
-              type="email"
-              placeholder="Votre email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="px-4 py-2 rounded-lg  focus:outline-none bg-base-300"
-            />
-            <button
-              type="submit"
-              className="bg-accent hover:bg-pink-600 text-white py-2 rounded-lg
-                transition duration-300 hover:scale-105"
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Section principale */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+            
+            {/* Logo et infos */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={FOOTER_CONFIG.animationVariants}
+              className="space-y-4"
             >
-              S'abonner
-            </button>
-          </form>
+              <div className="flex items-center gap-3">
+                <motion.img
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  src={monImage}
+                  alt="Logo Église"
+                  className="w-16 h-16 rounded-full border-3 border-accent shadow-lg"
+                />
+                <div>
+                  <h3 className="text-lg font-bold text-accent">
+                    {FOOTER_CONFIG.churchInfo.name}
+                  </h3>
+                  <p className="text-xs text-base-content/60">
+                    Depuis {FOOTER_CONFIG.churchInfo.founded}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm leading-relaxed text-base-content/80">
+                Une communauté de foi vivante, engagée à servir Dieu et à aimer notre prochain.
+              </p>
+
+              {/* Statistiques */}
+              <div className="flex items-center gap-4 pt-2">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-accent">{yearsActive}+</div>
+                  <div className="text-xs text-base-content/60">Ans de service</div>
+                </div>
+                <div className="w-px h-8 bg-base-300" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-accent">{stats.subscribers}+</div>
+                  <div className="text-xs text-base-content/60">Abonnés</div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Navigation */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={FOOTER_CONFIG.animationVariants}
+              transition={{ delay: 0.1 }}
+            >
+              <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
+                <span>Navigation</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+              </h3>
+              
+              <ul className="space-y-2">
+                {FOOTER_CONFIG.navigationLinks.map((link, index) => (
+                  <motion.li
+                    key={link.path}
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <Link
+                      to={link.path}
+                      className={`
+                        flex items-center gap-2 text-sm hover:text-accent transition-colors
+                        ${location.pathname === link.path ? 'text-accent font-medium' : ''}
+                      `}
+                    >
+                      <span className="text-lg">{link.icon}</span>
+                      <span>{link.name}</span>
+                    </Link>
+                  </motion.li>
+                ))}
+              </ul>
+
+              {/* Lien rapides supplémentaires */}
+              <button
+                onClick={() => setShowFullLinks(!showFullLinks)}
+                className="mt-4 text-xs text-accent hover:underline flex items-center gap-1"
+              >
+                {showFullLinks ? 'Voir moins' : 'Plus de liens'}
+                <ChevronUp className={`w-3 h-3 transition-transform ${showFullLinks ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {showFullLinks && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden mt-2"
+                  >
+                    <ul className="space-y-2 pl-6 border-l-2 border-accent/30">
+                      {FOOTER_CONFIG.quickLinks.map((link) => (
+                        <li key={link.path}>
+                          <Link
+                            to={link.path}
+                            className="text-xs hover:text-accent transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Contact */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={FOOTER_CONFIG.animationVariants}
+              transition={{ delay: 0.2 }}
+            >
+              <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
+                <span>Contact</span>
+                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
+              </h3>
+
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-accent" />
+                  </div>
+                  <a href={`tel:${FOOTER_CONFIG.churchInfo.phone}`} className="hover:text-accent transition-colors">
+                    {FOOTER_CONFIG.churchInfo.phone}
+                  </a>
+                </li>
+                
+                <li className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                    <Mail className="w-4 h-4 text-accent" />
+                  </div>
+                  <a href={`mailto:${FOOTER_CONFIG.churchInfo.email}`} className="hover:text-accent transition-colors">
+                    {FOOTER_CONFIG.churchInfo.email}
+                  </a>
+                </li>
+                
+                <li className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-accent" />
+                  </div>
+                  <span>{FOOTER_CONFIG.churchInfo.address}</span>
+                </li>
+              </ul>
+
+              {/* Horaires */}
+              <div className="mt-4 p-3 bg-base-300/50 rounded-lg">
+                <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-accent" />
+                  Horaires d'ouverture
+                </h4>
+                <ul className="space-y-1 text-xs text-base-content/70">
+                  {FOOTER_CONFIG.churchInfo.hours.map((item, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{item.day}</span>
+                      <span className="font-medium">{item.hours}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+
+            {/* Newsletter */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={FOOTER_CONFIG.animationVariants}
+              transition={{ delay: 0.3 }}
+            >
+              <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
+                <span>Newsletter</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+              </h3>
+
+              <p className="text-sm text-base-content/70 mb-4">
+                Recevez nos dernières actualités et méditations directement dans votre boîte mail.
+              </p>
+
+              <NewsletterForm onSubscribe={handleSubscribe} />
+
+              {/* Réseaux sociaux */}
+              <div className="mt-6">
+                <h4 className="text-sm font-semibold mb-3">Suivez-nous</h4>
+                <div className="flex gap-2">
+                  {FOOTER_CONFIG.socialLinks.map((social, index) => {
+                    const Icon = social.icon;
+                    return (
+                      <motion.a
+                        key={index}
+                        whileHover={{ y: -3, scale: 1.1 }}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={social.label}
+                        className={`
+                          p-3 rounded-full border border-accent text-accent
+                          transition-all duration-300 ${social.color} hover:text-white
+                        `}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </motion.a>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Séparateur */}
+          <div className="w-full h-px bg-linear-to-r from-transparent via-accent to-transparent my-8" />
+
+          {/* Copyright et mentions */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm"
+          >
+            <p className="text-base-content/60">
+              © {new Date().getFullYear()} 
+              <span className="text-accent font-bold mx-1">Temple du Dieu Vivant</span>
+              - Tous droits réservés
+            </p>
+
+            <div className="flex gap-4 text-xs">
+              <Link to="/legal" className="hover:text-accent transition-colors">
+                Mentions légales
+              </Link>
+              <Link to="/privacy" className="hover:text-accent transition-colors">
+                Confidentialité
+              </Link>
+              <Link to="/cookies" className="hover:text-accent transition-colors">
+                Cookies
+              </Link>
+            </div>
+
+            <p className="text-xs text-base-content/40 flex items-center gap-1">
+              Fait avec <Heart className="w-3 h-3 text-red-500 fill-current" /> pour Dieu
+            </p>
+          </motion.div>
         </div>
+      </footer>
 
-      </div>
-
-      <div className="text-center text-sm mt-10 border-t border-gray-400 pt-6">
-        © {new Date().getFullYear()} <span className="text-accent bold">Temple du Dieu Vivant</span>. Tous droits réservés.
-      </div>
-    </footer>
+      <BackToTop />
+    </>
   );
 };
 

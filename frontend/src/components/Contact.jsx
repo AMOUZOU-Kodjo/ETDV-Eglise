@@ -10,7 +10,7 @@ const Contact = () => (
       <h1 className="text-4xl font-bold text-center mb-8">Contactez-nous</h1>
       <ContactForm />
     </main>
-    <Footer/>
+    
   </div>
 );
 

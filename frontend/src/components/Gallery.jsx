@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Image,
+  Image as ImageIcon,
   Video,
   Music,
   Download,
@@ -15,24 +16,785 @@ import {
   Film,
   Headphones,
   Camera,
+  Heart,
+  Share2,
+  Volume2,
+  VolumeX,
+  Info,
+  Grid,
+  List,
+  Filter,
+  Search,
+  Loader,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Copy,
+  Check,
+  Trash2,
+  Edit,
+  Plus,
+  Upload,
+  AlertCircle
 } from "lucide-react";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
+import toast, { Toaster } from "react-hot-toast";
 
-const Gallery = () => {
+// ==================== CONFIGURATION ====================
+const GALLERY_CONFIG = {
+  itemsPerPage: 12,
+  breakpoints: {
+    sm: 640,
+    md: 768,
+    lg: 1024,
+    xl: 1280
+  },
+  colors: {
+    photos: {
+      primary: "from-blue-500 to-cyan-500",
+      secondary: "from-blue-600/20 to-cyan-600/20",
+      accent: "text-blue-500",
+      bg: "bg-blue-500/10",
+      hover: "hover:bg-blue-500/20"
+    },
+    videos: {
+      primary: "from-red-500 to-orange-500",
+      secondary: "from-red-600/20 to-orange-600/20",
+      accent: "text-red-500",
+      bg: "bg-red-500/10",
+      hover: "hover:bg-red-500/20"
+    },
+    audios: {
+      primary: "from-green-500 to-teal-500",
+      secondary: "from-green-600/20 to-teal-600/20",
+      accent: "text-green-500",
+      bg: "bg-green-500/10",
+      hover: "hover:bg-green-500/20"
+    }
+  },
+  animationVariants: {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  }
+};
 
-  
-  const [activeTab, setActiveTab] = useState("photos");
-  const [mediaItems, setMediaItems] = useState({
-    photos: [],
-    videos: [],
-    audios: [],
-  });
-  const [selectedItem, setSelectedItem] = useState(null);
+// ==================== DONNÉES DE DÉMONSTRATION ====================
+const DEMO_MEDIA = {
+  photos: [
+    {
+      id: "photo1",
+      titre: "Culte du Dimanche",
+      description: "Moment de louange lors du culte dominical",
+      url: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=800",
+      date: "2024-03-10",
+      telechargements: 45,
+      vues: 234,
+      likes: 56,
+      tags: ["culte", "louange", "dimanche"]
+    },
+    {
+      id: "photo2",
+      titre: "Groupe de Jeunes",
+      description: "Rencontre hebdomadaire des jeunes",
+      url: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800",
+      date: "2024-03-08",
+      telechargements: 32,
+      vues: 189,
+      likes: 43,
+      tags: ["jeunes", "rencontre", "etude"]
+    },
+    {
+      id: "photo3",
+      titre: "Baptême",
+      description: "Cérémonie de baptême",
+      url: "https://images.unsplash.com/photo-1473177104440-ffee2f376954?w=800",
+      date: "2024-03-05",
+      telechargements: 67,
+      vues: 456,
+      likes: 89,
+      tags: ["bapteme", "ceremonie"]
+    }
+  ],
+  videos: [
+    {
+      id: "video1",
+      titre: "Message du Pasteur",
+      description: "Enseignement sur la foi",
+      url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      date: "2024-03-12",
+      duree: "45:30",
+      telechargements: 23,
+      vues: 567,
+      likes: 78,
+      tags: ["message", "enseignement"]
+    },
+    {
+      id: "video2",
+      titre: "Louange et Adoration",
+      description: "Moment de louange",
+      url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      date: "2024-03-09",
+      duree: "32:15",
+      telechargements: 34,
+      vues: 432,
+      likes: 65,
+      tags: ["louange", "musique"]
+    }
+  ],
+  audios: [
+    {
+      id: "audio1",
+      titre: "Enseignement sur la Prière",
+      description: "Comment prier efficacement",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      date: "2024-03-11",
+      duree: "28:45",
+      telechargements: 56,
+      vues: 345,
+      likes: 67,
+      tags: ["priere", "enseignement"]
+    },
+    {
+      id: "audio2",
+      titre: "Cantique de Louange",
+      description: "Chant d'adoration",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+      date: "2024-03-07",
+      duree: "15:20",
+      telechargements: 43,
+      vues: 234,
+      likes: 54,
+      tags: ["chant", "louange"]
+    }
+  ]
+};
+
+// ==================== COMPOSANT CARD ====================
+const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isPlaying, onPlay }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const config = GALLERY_CONFIG.colors[type];
+  const Icon = type === 'photos' ? Camera : type === 'videos' ? Film : Headphones;
+
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleShare = async (e) => {
+    e.stopPropagation();
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: item.titre,
+          text: item.description,
+          url: item.url
+        });
+        toast.success('Partagé avec succès !');
+      } else {
+        await navigator.clipboard.writeText(item.url);
+        toast.success('Lien copié !');
+      }
+    } catch (error) {
+      toast.error('Erreur lors du partage');
+    }
+  };
+
+  return (
+    <motion.div
+      variants={GALLERY_CONFIG.animationVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      transition={{ delay: index * 0.1 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="group relative bg-base-200 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
+      onClick={() => onOpen(item)}
+    >
+      {/* Bande de couleur */}
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.primary} z-10`} />
+
+      {/* Aperçu */}
+      <div className="relative h-48 sm:h-56 lg:h-64 overflow-hidden">
+        {type === 'photos' && (
+          <>
+            <img
+              src={item.url}
+              alt={item.titre}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </>
+        )}
+
+        {type === 'videos' && (
+          <div className="relative w-full h-full">
+            <video
+              src={item.url}
+              className="w-full h-full object-cover"
+              muted
+              loop
+              onMouseEnter={(e) => e.target.play()}
+              onMouseLeave={(e) => {
+                e.target.pause();
+                e.target.currentTime = 0;
+              }}
+            />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform group-hover:scale-110">
+                <Play className="w-8 h-8 text-white ml-1" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {type === 'audios' && (
+          <div className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex items-end space-x-1 h-24">
+                {[...Array(20)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-1.5 rounded-t-full transition-all duration-300 ${
+                      isPlaying ? 'animate-pulse' : ''
+                    }`}
+                    style={{
+                      height: `${Math.sin(i * 0.5) * 30 + 40}%`,
+                      backgroundColor: isPlaying ? '#22c55e' : '#94a3b8',
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPlay(item);
+                }}
+                className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+              >
+                {isPlaying ? (
+                  <Pause className="w-8 h-8 text-white" />
+                ) : (
+                  <Play className="w-8 h-8 text-white ml-1" />
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Badge de type */}
+        <div className={`absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10`}>
+          <Icon className="w-3 h-3" />
+          <span className="capitalize">{type}</span>
+        </div>
+
+        {/* Badge de durée */}
+        {(type === 'videos' || type === 'audios') && item.duree && (
+          <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
+            {item.duree}
+          </div>
+        )}
+
+        {/* Bouton téléchargement rapide */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDownload(item);
+          }}
+          className="absolute top-2 right-2 p-2 bg-black/50 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-black/70"
+          title="Télécharger"
+        >
+          <Download className="w-4 h-4 text-white" />
+        </button>
+      </div>
+
+      {/* Informations */}
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="font-bold truncate flex-1">{item.titre}</h3>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike(item);
+            }}
+            className={`ml-2 ${isLiked ? 'text-red-500' : 'text-base-content/30 hover:text-red-500'}`}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+          </motion.button>
+        </div>
+
+        <p className="text-xs text-base-content/60 line-clamp-2 mb-3">
+          {item.description}
+        </p>
+
+        <div className="flex items-center justify-between text-xs text-base-content/40">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              <span>{new Date(item.date).toLocaleDateString('fr-FR')}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>{item.vues}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>{item.telechargements} téléch.</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div className="px-4 pb-4 flex flex-wrap gap-1">
+        {item.tags?.slice(0, 3).map((tag, i) => (
+          <span
+            key={i}
+            className={`text-[10px] px-2 py-0.5 rounded-full ${config.bg} ${config.accent}`}
+          >
+            #{tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Effet de brillance au survol */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none">
+        <div className="absolute top-0 -inset-full h-full w-1/2 transform -skew-x-12 bg-gradient-to-r from-transparent to-white/5 animate-shine" />
+      </div>
+    </motion.div>
+  );
+};
+
+// ==================== COMPOSANT MODAL ====================
+const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasPrev, onDownload }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [showInfo, setShowInfo] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+  const config = GALLERY_CONFIG.colors[type];
+  const Icon = type === 'photos' ? Camera : type === 'videos' ? Film : Headphones;
+
+  if (!item) return null;
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+    }
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume;
+    }
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+    setIsMuted(newVolume === 0);
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+    }
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+    }
+    setIsMuted(!isMuted);
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: item.titre,
+          text: item.description,
+          url: item.url
+        });
+        toast.success('Partagé avec succès !');
+      } else {
+        await navigator.clipboard.writeText(item.url);
+        toast.success('Lien copié dans le presse-papiers !');
+      }
+    } catch (error) {
+      toast.error('Erreur lors du partage');
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50"
+          />
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20 }}
+            className="fixed inset-0 z-50 overflow-hidden"
+          >
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Navigation */}
+              {hasPrev && (
+                <button
+                  onClick={onPrev}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-primary btn-lg z-20 hover:scale-110 transition-transform"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
+
+              {hasNext && (
+                <button
+                  onClick={onNext}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-primary btn-lg z-20 hover:scale-110 transition-transform"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              )}
+
+              {/* Barre d'outils supérieure */}
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 to-transparent p-4 z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-gradient-to-r ${config.primary} bg-opacity-20`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">{item.titre}</h2>
+                      <p className="text-sm text-white/70">{item.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setLiked(!liked)}
+                      className={`p-2 rounded-full transition-all ${liked ? 'bg-red-500' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      <Heart className={`w-5 h-5 text-white ${liked ? 'fill-current' : ''}`} />
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <Share2 className="w-5 h-5 text-white" />
+                    </button>
+                    <button
+                      onClick={() => onDownload(item)}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <Download className="w-5 h-5 text-white" />
+                    </button>
+                    <button
+                      onClick={() => setShowInfo(!showInfo)}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <Info className="w-5 h-5 text-white" />
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <X className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contenu principal */}
+              <div className="w-full h-full flex items-center justify-center p-16">
+                {type === 'photos' && (
+                  <img
+                    src={item.url}
+                    alt={item.titre}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                  />
+                )}
+
+                {type === 'videos' && (
+                  <video
+                    ref={videoRef}
+                    src={item.url}
+                    className="max-w-full max-h-full rounded-lg"
+                    controls
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onVolumeChange={() => setIsMuted(videoRef.current?.muted)}
+                  />
+                )}
+
+                {type === 'audios' && (
+                  <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">
+                    <div className="relative w-40 h-40 mx-auto mb-8">
+                      <div className={`absolute inset-0 bg-gradient-to-r ${config.primary} rounded-full animate-pulse`} />
+                      <Headphones className={`w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${config.accent}`} />
+                    </div>
+                    
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold mb-2">{item.titre}</h3>
+                      <p className="text-base-content/70">{item.description}</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Barre de progression */}
+                      <div className="flex items-center gap-2 text-sm">
+                        <span>0:00</span>
+                        <div className="flex-1 h-2 bg-base-300 rounded-full">
+                          <div className="w-1/3 h-full bg-gradient-to-r from-green-500 to-teal-500 rounded-full" />
+                        </div>
+                        <span>{item.duree}</span>
+                      </div>
+
+                      {/* Contrôles */}
+                      <div className="flex items-center justify-center gap-4">
+                        <button
+                          onClick={() => {/* Précédent */}}
+                          className="btn btn-circle btn-ghost"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        
+                        <button
+                          onClick={handlePlayPause}
+                          className="btn btn-circle btn-primary btn-lg"
+                        >
+                          {isPlaying ? (
+                            <Pause className="w-6 h-6" />
+                          ) : (
+                            <Play className="w-6 h-6 ml-1" />
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={() => {/* Suivant */}}
+                          className="btn btn-circle btn-ghost"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Volume */}
+                      <div className="flex items-center gap-2">
+                        <button onClick={toggleMute} className="btn btn-xs btn-ghost btn-circle">
+                          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                        </button>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={volume}
+                          onChange={handleVolumeChange}
+                          className="range range-primary range-xs flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Panneau d'information */}
+              <AnimatePresence>
+                {showInfo && (
+                  <motion.div
+                    initial={{ x: '100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '100%' }}
+                    transition={{ type: "spring", damping: 20 }}
+                    className="absolute right-0 top-0 bottom-0 w-80 bg-base-100 shadow-2xl p-6 overflow-y-auto"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="font-bold text-lg">Informations</h3>
+                      <button
+                        onClick={() => setShowInfo(false)}
+                        className="btn btn-sm btn-circle btn-ghost"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs opacity-60">Titre</label>
+                        <p className="font-medium">{item.titre}</p>
+                      </div>
+
+                      <div>
+                        <label className="text-xs opacity-60">Description</label>
+                        <p className="text-sm">{item.description}</p>
+                      </div>
+
+                      <div>
+                        <label className="text-xs opacity-60">Date</label>
+                        <p>{new Date(item.date).toLocaleDateString('fr-FR', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs opacity-60">Vues</label>
+                          <p className="font-bold text-lg">{item.vues}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs opacity-60">Likes</label>
+                          <p className="font-bold text-lg">{item.likes}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs opacity-60">Téléchargements</label>
+                          <p className="font-bold text-lg">{item.telechargements}</p>
+                        </div>
+                      </div>
+
+                      {item.tags && (
+                        <div>
+                          <label className="text-xs opacity-60">Tags</label>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {item.tags.map((tag, i) => (
+                              <span
+                                key={i}
+                                className={`text-xs px-3 py-1 rounded-full ${GALLERY_CONFIG.colors[type].bg} ${GALLERY_CONFIG.colors[type].accent}`}
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="pt-4 border-t">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(item.url);
+                            toast.success('URL copiée !');
+                          }}
+                          className="btn btn-outline btn-sm w-full gap-2"
+                        >
+                          <Copy className="w-4 h-4" />
+                          Copier l'URL
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ==================== COMPOSANT FILTERS ====================
+const FilterBar = ({ tags, selectedTags, onTagToggle, sortBy, onSortChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="bg-base-200 rounded-xl p-4 mb-8">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <Filter className="w-4 h-4" />
+          <span>Filtres et tri</span>
+          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        <select
+          value={sortBy}
+          onChange={(e) => onSortChange(e.target.value)}
+          className="select select-sm select-bordered"
+        >
+          <option value="date">Plus récents</option>
+          <option value="downloads">Plus téléchargés</option>
+          <option value="views">Plus vus</option>
+          <option value="likes">Plus aimés</option>
+        </select>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-4 border-t mt-4">
+              <h4 className="text-sm font-medium mb-3">Tags populaires</h4>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => onTagToggle(tag)}
+                    className={`px-3 py-1 text-xs rounded-full transition-all ${
+                      selectedTags.includes(tag)
+                        ? 'bg-accent text-white'
+                        : 'bg-base-300 hover:bg-base-400'
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ==================== COMPOSANT PRINCIPAL ====================
+const Gallery = () => {
+  const [activeTab, setActiveTab] = useState("photos");
+  const [mediaItems, setMediaItems] = useState(DEMO_MEDIA);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playingAudio, setPlayingAudio] = useState(null);
+  const [viewMode, setViewMode] = useState("grid");
+  const [search, setSearch] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [sortBy, setSortBy] = useState("date");
+  const [likedItems, setLikedItems] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Charger les données depuis localStorage
   useEffect(() => {
@@ -40,19 +802,26 @@ const Gallery = () => {
       const savedMedia = localStorage.getItem("galleryMedia");
       if (savedMedia) {
         setMediaItems(JSON.parse(savedMedia));
+      } else {
+        // Utiliser les données de démonstration
+        setMediaItems(DEMO_MEDIA);
       }
     };
-
     loadMedia();
-    window.addEventListener("storage", loadMedia);
-    return () => window.removeEventListener("storage", loadMedia);
   }, []);
+
+  // Sauvegarder dans localStorage quand les données changent
+  useEffect(() => {
+    if (mediaItems !== DEMO_MEDIA) {
+      localStorage.setItem("galleryMedia", JSON.stringify(mediaItems));
+    }
+  }, [mediaItems]);
 
   // Mettre à jour l'index courant
   useEffect(() => {
     if (selectedItem) {
       const index = mediaItems[activeTab].findIndex(
-        (item) => item.id === selectedItem.id,
+        (item) => item.id === selectedItem.id
       );
       setCurrentIndex(index);
     }
@@ -70,462 +839,448 @@ const Gallery = () => {
     };
   }, [selectedItem]);
 
-  // Navigation entre les médias
-  const navigateMedia = (direction) => {
+  // Filtrer et trier les médias
+  const filteredAndSortedMedia = useMemo(() => {
+    let items = [...(mediaItems[activeTab] || [])];
+
+    // Filtre par recherche
+    if (search) {
+      items = items.filter(item =>
+        item.titre.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Filtre par tags
+    if (selectedTags.length > 0) {
+      items = items.filter(item =>
+        selectedTags.every(tag => item.tags?.includes(tag))
+      );
+    }
+
+    // Tri
+    items.sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return new Date(b.date) - new Date(a.date);
+        case 'downloads':
+          return b.telechargements - a.telechargements;
+        case 'views':
+          return b.vues - a.vues;
+        case 'likes':
+          return b.likes - a.likes;
+        default:
+          return 0;
+      }
+    });
+
+    return items;
+  }, [activeTab, mediaItems, search, selectedTags, sortBy]);
+
+  // Pagination
+  const paginatedMedia = useMemo(() => {
+    const start = (currentPage - 1) * GALLERY_CONFIG.itemsPerPage;
+    const end = start + GALLERY_CONFIG.itemsPerPage;
+    return filteredAndSortedMedia.slice(start, end);
+  }, [filteredAndSortedMedia, currentPage]);
+
+  const totalPages = Math.ceil(filteredAndSortedMedia.length / GALLERY_CONFIG.itemsPerPage);
+
+  // Réinitialiser la page quand les filtres changent
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, search, selectedTags, sortBy]);
+
+  // Tags uniques
+  const allTags = useMemo(() => {
+    const tags = new Set();
+    mediaItems[activeTab]?.forEach(item => {
+      item.tags?.forEach(tag => tags.add(tag));
+    });
+    return Array.from(tags);
+  }, [activeTab, mediaItems]);
+
+  // Navigation
+  const navigateMedia = useCallback((direction) => {
     const newIndex = currentIndex + direction;
     if (newIndex >= 0 && newIndex < mediaItems[activeTab].length) {
       setCurrentIndex(newIndex);
       setSelectedItem(mediaItems[activeTab][newIndex]);
     }
-  };
-
-  // Gestion du plein écran
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setFullscreen(false);
-      }
-    }
-  };
+  }, [currentIndex, activeTab, mediaItems]);
 
   // Téléchargement
-  const handleDownload = (item, e) => {
+  const handleDownload = useCallback((item, e) => {
     e?.stopPropagation();
-    const newMedia = { ...mediaItems };
-    const index = newMedia[activeTab].findIndex((i) => i.id === item.id);
-    if (index !== -1) {
-      newMedia[activeTab][index].telechargements++;
-      localStorage.setItem("galleryMedia", JSON.stringify(newMedia));
-      setMediaItems(newMedia);
+    
+    setMediaItems(prev => {
+      const newMedia = { ...prev };
+      const index = newMedia[activeTab].findIndex(i => i.id === item.id);
+      if (index !== -1) {
+        newMedia[activeTab][index].telechargements++;
+      }
+      return newMedia;
+    });
 
-      const link = document.createElement("a");
-      link.href = item.url;
-      link.download = item.titre;
-      link.click();
+    // Simuler un téléchargement
+    const link = document.createElement("a");
+    link.href = item.url;
+    link.download = item.titre;
+    link.click();
+
+    toast.success(`Téléchargement de "${item.titre}" démarré !`, {
+      icon: '📥',
+      duration: 3000
+    });
+  }, [activeTab]);
+
+  // Like
+  const handleLike = useCallback((item) => {
+    setLikedItems(prev => ({
+      ...prev,
+      [item.id]: !prev[item.id]
+    }));
+
+    setMediaItems(prev => {
+      const newMedia = { ...prev };
+      const index = newMedia[activeTab].findIndex(i => i.id === item.id);
+      if (index !== -1) {
+        newMedia[activeTab][index].likes += likedItems[item.id] ? -1 : 1;
+      }
+      return newMedia;
+    });
+
+    if (!likedItems[item.id]) {
+      toast.success('Ajouté à vos favoris !', {
+        icon: '❤️',
+        duration: 2000
+      });
     }
-  };
+  }, [activeTab, likedItems]);
 
-  // Ouvrir le plein écran
-  const openFullscreen = (item) => {
-    setSelectedItem(item);
-  };
-
-  // Fermer le plein écran
-  const closeFullscreen = () => {
-    setSelectedItem(null);
-  };
-
-  // Jouer un audio
-  const playAudio = (item, e) => {
-    e?.stopPropagation();
+  // Lecture audio
+  const handlePlayAudio = useCallback((item) => {
     if (playingAudio === item.id) {
       setPlayingAudio(null);
     } else {
       setPlayingAudio(item.id);
     }
-  };
-
-  // Rendu du lecteur plein écran
-  const renderFullscreen = () => {
-    if (!selectedItem) return null;
-
-    return (
-      
-      <div
-        className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center"
-        onClick={closeFullscreen}
-      >
-        <div
-          className="relative w-full h-full"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Navigation */}
-          {currentIndex > 0 && (
-            <button
-              onClick={() => navigateMedia(-1)}
-              className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-primary btn-sm sm:btn-md z-10"
-            >
-              <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
-            </button>
-          )}
-
-          {currentIndex < mediaItems[activeTab].length - 1 && (
-            <button
-              onClick={() => navigateMedia(1)}
-              className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-primary btn-sm sm:btn-md z-10"
-            >
-              <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
-            </button>
-          )}
-
-          {/* En-tête */}
-          <div className="absolute top-0 left-0 right-0 bg-linear-to-b from-black/70 to-transparent p-2 sm:p-4 z-10">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-              <div className="text-white flex-1 min-w-0">
-                <h2 className="text-base sm:text-lg md:text-2xl font-bold truncate">
-                  {selectedItem.titre}
-                </h2>
-                <p className="text-xs sm:text-sm opacity-80 line-clamp-1">
-                  {selectedItem.description}
-                </p>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <button
-                  onClick={(e) => handleDownload(selectedItem, e)}
-                  className="btn btn-primary btn-xs sm:btn-sm"
-                >
-                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="text-xs sm:text-sm">Télécharger</span>
-                </button>
-                <button
-                  onClick={toggleFullscreen}
-                  className="btn btn-secondary btn-xs sm:btn-sm"
-                >
-                  <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span className="text-xs sm:text-sm hidden sm:inline">
-                    {fullscreen ? "Quitter" : "Plein écran"}
-                  </span>
-                </button>
-                <button
-                  onClick={closeFullscreen}
-                  className="btn btn-ghost btn-xs sm:btn-sm text-white"
-                >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Contenu principal */}
-          <div className="w-full h-full flex items-center justify-center p-2 sm:p-4">
-            {activeTab === "photos" && (
-              <img
-                src={selectedItem.url}
-                alt={selectedItem.titre}
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-
-            {activeTab === "videos" && (
-              <div className="w-full h-full">
-                <video
-                  src={selectedItem.url}
-                  controls
-                  autoPlay
-                  className="w-full h-full"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                >
-                  Votre navigateur ne supporte pas la vidéo
-                </video>
-              </div>
-            )}
-
-            {activeTab === "audios" && (
-              <div className="max-w-4xl w-full mx-auto text-center p-4">
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-8">
-                  <div className="absolute inset-0 bg-linear-to-r from-green-500 to-teal-500 rounded-full animate-pulse"></div>
-                  <Headphones className="w-16 h-16 sm:w-20 sm:h-20 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                </div>
-                <audio
-                  controls
-                  autoPlay
-                  className="w-full"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                >
-                  <source src={selectedItem.url} type="audio/mpeg" />
-                  Votre navigateur ne supporte pas l'audio
-                </audio>
-              </div>
-            )}
-          </div>
-
-          {/* Informations */}
-          <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-2 sm:p-4">
-            <div className="text-white text-xs sm:text-sm">
-              {currentIndex + 1} / {mediaItems[activeTab].length}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Fonction pour obtenir la bannière
-  const getMediaBanner = (type) => {
-    const banners = {
-      photos: {
-        icon: Camera,
-        gradient: "from-blue-600/20 to-purple-600/20",
-        iconColor: "text-blue-500",
-      },
-      videos: {
-        icon: Film,
-        gradient: "from-red-600/20 to-orange-600/20",
-        iconColor: "text-red-500",
-      },
-      audios: {
-        icon: Headphones,
-        gradient: "from-green-600/20 to-teal-600/20",
-        iconColor: "text-green-500",
-      },
-    };
-
-    const banner = banners[type];
-    const Icon = banner.icon;
-
-    return (
-      <div
-        className={`absolute inset-0 bg-linear-to-br ${banner.gradient} flex items-center justify-center`}
-      >
-        <Icon
-          className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 ${banner.iconColor} opacity-50`}
-        />
-      </div>
-    );
-  };
+  }, [playingAudio]);
 
   return (
-    <><NavBar />
-    <div className="p-3 sm:p-5 md:px-[5%] bg-base-100 min-h-screen">
-      {/* En-tête */}
-      <div className="text-center mb-8 sm:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">
-          Notre Galerie
-        </h1>
-        <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-4">
-          Découvrez les moments forts de notre communauté à travers photos,
-          vidéos et enseignements audio
-        </p>
-      </div>
+    <>
+      <NavBar />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'hsl(var(--b1))',
+            color: 'hsl(var(--bc))',
+            border: '1px solid hsl(var(--b3))',
+          },
+        }}
+      />
 
-      {/* Onglets de navigation */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
-        <button
-          onClick={() => setActiveTab("photos")}
-          className={`btn ${activeTab === "photos" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
-        >
-          <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">
-            Photos ({mediaItems.photos?.length || 0})
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("videos")}
-          className={`btn ${activeTab === "videos" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
-        >
-          <Film className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">
-            Vidéos ({mediaItems.videos?.length || 0})
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab("audios")}
-          className={`btn ${activeTab === "audios" ? "btn-primary" : "btn-outline"} btn-sm sm:btn-md lg:btn-lg flex items-center gap-1 sm:gap-2`}
-        >
-          <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="text-xs sm:text-sm">
-            Audios ({mediaItems.audios?.length || 0})
-          </span>
-        </button>
-      </div>
-
-      {/* Grille des médias avec aperçu direct */}
-      <div className="mt-6 sm:mt-8">
-        {mediaItems[activeTab]?.length === 0 ? (
-          <div className="text-center py-8 sm:py-12">
-            <p className="text-sm sm:text-base text-gray-500">
-              Aucun {activeTab} disponible pour le moment
-            </p>
+      <main className="min-h-screen bg-base-100">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-br from-base-200 via-base-100 to-base-200 py-20 overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 1px)',
+              backgroundSize: '40px 40px'
+            }} />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {mediaItems[activeTab]?.map((item) => (
-              <div
-                key={item.id}
-                className="bg-base-200 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-              >
-                {/* Aperçu direct selon le type */}
-                <div
-                  className="relative h-48 sm:h-56 lg:h-64 overflow-hidden cursor-pointer"
-                  onClick={() => openFullscreen(item)}
+
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center max-w-3xl mx-auto"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Notre Galerie
+              </h1>
+              <p className="text-lg md:text-xl text-base-content/70">
+                Découvrez les moments forts de notre communauté à travers photos, vidéos et enseignements audio
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Section principale */}
+        <section className="container mx-auto px-4 py-12">
+          {/* Barre de recherche */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-base-content/40" />
+              <input
+                type="text"
+                placeholder="Rechercher par titre ou description..."
+                className="input input-bordered w-full pl-12"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Onglets */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {['photos', 'videos', 'audios'].map((tab) => {
+              const Icon = tab === 'photos' ? Camera : tab === 'videos' ? Film : Headphones;
+              const isActive = activeTab === tab;
+              
+              return (
+                <motion.button
+                  key={tab}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setActiveTab(tab)}
+                  className={`
+                    relative px-6 py-3 rounded-full font-medium transition-all
+                    flex items-center gap-2 overflow-hidden
+                    ${isActive
+                      ? `text-white shadow-lg bg-gradient-to-r ${GALLERY_CONFIG.colors[tab].primary}`
+                      : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+                    }
+                  `}
                 >
-                  {activeTab === "photos" && (
-                    <>
-                      <img
-                        src={item.url}
-                        alt={item.titre}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      {/* Overlay avec titre au survol */}
-                      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <h3 className="text-white font-bold text-lg truncate">
-                            {item.titre}
-                          </h3>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <Icon className="w-4 h-4" />
+                  <span className="capitalize">{tab}</span>
+                  <span className="ml-1 text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                    {mediaItems[tab]?.length || 0}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </div>
 
-                  {activeTab === "videos" && (
-                    <div className="relative w-full h-full">
-                      <video
-                        src={item.url}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        onMouseEnter={(e) => e.target.play()}
-                        onMouseLeave={(e) => {
-                          e.target.pause();
-                          e.target.currentTime = 0;
-                        }}
-                      >
-                        Votre navigateur ne supporte pas la vidéo
-                      </video>
-                      {/* Overlay play */}
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-16 h-16 bg-primary/80 rounded-full flex items-center justify-center">
-                          <Play className="w-8 h-8 text-white ml-1" />
-                        </div>
-                      </div>
-                      {/* Badge durée */}
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                        03:45
-                      </div>
-                    </div>
-                  )}
+          {/* Filtres */}
+          <FilterBar
+            tags={allTags}
+            selectedTags={selectedTags}
+            onTagToggle={(tag) => {
+              setSelectedTags(prev =>
+                prev.includes(tag)
+                  ? prev.filter(t => t !== tag)
+                  : [...prev, tag]
+              );
+            }}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+          />
 
-                  {activeTab === "audios" && (
-                    <div className="relative w-full h-full bg-gradient-to-br from-green-600/30 to-teal-600/30">
-                      {/* Visualisation audio */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex items-end space-x-1 h-24">
-                          {[...Array(20)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 bg-green-500 rounded-t-full transition-all duration-300 ${playingAudio === item.id ? "animate-pulse" : ""
-                                }`}
-                              style={{
-                                height: `${Math.sin(i * 0.5) * 30 + 40}%`,
-                                animationDelay: `${i * 0.1}s`,
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
+          {/* En-tête de la galerie */}
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-base-content/60">
+              {filteredAndSortedMedia.length} élément{filteredAndSortedMedia.length > 1 ? 's' : ''} trouvé{filteredAndSortedMedia.length > 1 ? 's' : ''}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-accent text-white' : 'bg-base-200'}`}
+                title="Vue grille"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-accent text-white' : 'bg-base-200'}`}
+                title="Vue liste"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
-                      {/* Contrôles audio */}
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playAudio(item, e);
-                          }}
-                          className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                        >
-                          {playingAudio === item.id ? (
-                            <Pause className="w-8 h-8 text-white" />
-                          ) : (
-                            <Play className="w-8 h-8 text-white ml-1" />
-                          )}
-                        </button>
-                      </div>
+          {/* Grille des médias */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab + viewMode + currentPage}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05 }
+                }
+              }}
+              className={`grid ${
+                viewMode === 'grid'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  : 'grid-cols-1'
+              } gap-6`}
+            >
+              {paginatedMedia.map((item, index) => (
+                <MediaCard
+                  key={item.id}
+                  item={item}
+                  type={activeTab}
+                  index={index}
+                  onOpen={setSelectedItem}
+                  onDownload={handleDownload}
+                  onLike={handleLike}
+                  isLiked={likedItems[item.id]}
+                  isPlaying={playingAudio === item.id}
+                  onPlay={handlePlayAudio}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
 
-                      {/* Badge audio */}
-                      <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                        <Headphones className="w-3 h-3" />
-                        <span>Audio</span>
-                      </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-12">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-lg bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
 
-                      {/* Durée */}
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                        05:30
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Badge de type (pour photos) */}
-                  {activeTab === "photos" && (
-                    <div className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                      <Camera className="w-3 h-3" />
-                      <span>Photo</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Informations compactes */}
-                <div className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-sm truncate flex-1">
-                      {item.titre}
-                    </h3>
+              {[...Array(totalPages)].map((_, i) => {
+                const page = i + 1;
+                if (
+                  page === 1 ||
+                  page === totalPages ||
+                  (page >= currentPage - 2 && page <= currentPage + 2)
+                ) {
+                  return (
                     <button
-                      onClick={(e) => handleDownload(item, e)}
-                      className="btn btn-xs btn-circle btn-ghost text-primary hover:bg-primary/20"
-                      title="Télécharger"
+                      key={i}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[40px] h-10 rounded-lg font-medium transition-all ${
+                        currentPage === page
+                          ? 'bg-accent text-white shadow-lg scale-105'
+                          : 'bg-base-200 hover:bg-base-300'
+                      }`}
                     >
-                      <Download className="w-4 h-4" />
+                      {page}
                     </button>
-                  </div>
+                  );
+                }
+                if (page === currentPage - 3 || page === currentPage + 3) {
+                  return <span key={i} className="px-2">...</span>;
+                }
+                return null;
+              })}
 
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>
-                        {new Date(item.date).toLocaleDateString("fr-FR")}
-                      </span>
-                    </div>
-                    <span>{item.telechargements} téléchargements</span>
-                  </div>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-lg bg-base-200 hover:bg-base-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
+
+      {/* Modal */}
+      <MediaModal
+        item={selectedItem}
+        type={activeTab}
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        onPrev={() => navigateMedia(-1)}
+        onNext={() => navigateMedia(1)}
+        hasPrev={currentIndex > 0}
+        hasNext={currentIndex < mediaItems[activeTab]?.length - 1}
+        onDownload={handleDownload}
+      />
+
+      {/* Lecteur audio flottant */}
+      <AnimatePresence>
+        {playingAudio && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="fixed bottom-0 left-0 right-0 bg-base-200 border-t shadow-lg p-4 z-40"
+          >
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${GALLERY_CONFIG.colors.audios.primary} animate-pulse`} />
+                  <Headphones className="w-5 h-5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {mediaItems.audios.find(a => a.id === playingAudio)?.titre}
+                  </p>
+                  <p className="text-xs text-base-content/60">
+                    En cours de lecture...
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Lecteur audio flottant quand un audio est joué */}
-      {playingAudio && (
-        <div className="fixed bottom-0 left-0 right-0 bg-base-200 border-t shadow-lg p-3 z-30">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Headphones className="w-5 h-5 text-green-500" />
-              <span className="font-medium text-sm">
-                {mediaItems.audios.find((a) => a.id === playingAudio)?.titre}
-              </span>
+              <audio
+                controls
+                autoPlay
+                className="w-96"
+                onEnded={() => setPlayingAudio(null)}
+              >
+                <source
+                  src={mediaItems.audios.find(a => a.id === playingAudio)?.url}
+                  type="audio/mpeg"
+                />
+              </audio>
+
+              <button
+                onClick={() => setPlayingAudio(null)}
+                className="btn btn-sm btn-ghost btn-circle"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <audio
-              controls
-              autoPlay
-              className="w-96"
-              onEnded={() => setPlayingAudio(null)}
-            >
-              <source
-                src={mediaItems.audios.find((a) => a.id === playingAudio)?.url}
-                type="audio/mpeg"
-              />
-            </audio>
-            <button
-              onClick={() => setPlayingAudio(null)}
-              className="btn btn-sm btn-ghost btn-circle"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Plein écran */}
-      {renderFullscreen()}
-    </div>
-    <Footer/>
+    
+
+      {/* Styles globaux */}
+      <style>{`
+        @keyframes shine {
+          100% {
+            left: 200%;
+          }
+        }
+        .animate-shine {
+          animation: shine 0.8s ease-out;
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Amélioration du scroll */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: hsl(var(--b2));
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: hsl(var(--a) / 0.3);
+          border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: hsl(var(--a) / 0.5);
+        }
+      `}</style>
     </>
   );
 };

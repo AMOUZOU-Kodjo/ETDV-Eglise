@@ -14,31 +14,95 @@ import AdminDashboard from "./components/Dashboad/AdminDashboard";
 import AdminGallery from "./components/Dashboad/AdminGallery";
 import DashAdmin from "./components/Dashboad/DashAdmin"
 import Inscription from "./components/connexion/Inscription";
+import MentionsLegales from "./components/Legal/MentionsLegales";
+import PolitiqueConfidentialite from "./components/Legal/PolitiqueConfidentialite";
+import Support from "./components/Legal/Support";
 
 
+// Layout pour les pages publiques
+const PublicLayout = ({ children }) => (
+  <>
+    <NavBar />
+    <main className="pt-20 min-h-screen">
+      {children}
+    </main>
+    <Footer />
+  </>
+);
+
+// Layout pour les pages d'administration
+const AdminLayout = ({ children }) => (
+  <main className="min-h-screen bg-gray-100">
+    {children}
+  </main>
+);
 
 const App = () => {
- 
   return (
-
     <BrowserRouter>
-    
-      
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/admin" element={<Admin />} />
-        {/* <Route path="/dashboard" element={<CommunityDashboard />} /> */}
-        <Route path="/dashboardadmin" element={<AdminDashboard />} />
-        <Route path="/galleryadmin" element={<AdminGallery />} />
-        <Route path ="/dashadmin" element = {<DashAdmin />  } />
-        <Route path="/inscription" element = {<Inscription /> }/> 
+        {/* Routes publiques avec NavBar et Footer */}
+        <Route path="/" element={
+          <PublicLayout>
+            <Home />
+          </PublicLayout>
+        } />
+        <Route path="/about" element={
+          <PublicLayout>
+            <About />
+          </PublicLayout>
+        } />
+        <Route path="/events" element={
+          <PublicLayout>
+            <Events />
+          </PublicLayout>
+        } />
+        <Route path="/programs" element={
+          <PublicLayout>
+            <Programs />
+          </PublicLayout>
+        } />
+        <Route path="/gallery" element={
+          <PublicLayout>
+            <Gallery />
+          </PublicLayout>
+        } />
+        <Route path="/contact" element={
+          <PublicLayout>
+            <Contact />
+          </PublicLayout>
+        } />
+        
+        {/* Routes d'inscription sans footer peut-être */}
+        <Route path="/inscription" element={
+          <main className="min-h-screen">
+            <Inscription />
+          </main>
+        } />
+        
+        {/* Routes admin sans navbar publique */}
+        <Route path="/admin" element={
+          <AdminLayout>
+            <Admin />
+          </AdminLayout>
+        } />
+        <Route path="/dashboardadmin" element={
+          <AdminLayout>
+            <AdminDashboard />
+          </AdminLayout>
+        } />
+        <Route path="/galleryadmin" element={
+          <AdminLayout>
+            <AdminGallery />
+          </AdminLayout>
+        } />
+        <Route path="/dashadmin" element={
+          <AdminLayout>
+            <DashAdmin />
+          </AdminLayout>
+        } />
+       
       </Routes>
-      
     </BrowserRouter>
   );
 };
