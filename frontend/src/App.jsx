@@ -14,7 +14,7 @@ import Inscription from "./components/connexion/Inscription";
 import MentionsLegales from "./components/Legal/MentionsLegales";
 import PolitiqueConfidentialite from "./components/Legal/PolitiqueConfidentialite";
 import Support from "./components/Legal/Support";
-import FAQ from "./components/Legal/faq";
+// import FAQ from "./components/Legal/FAQ";
 import CGU from "./components/Legal/CGU";
 import Cookies from "./components/Legal/Cookies";
 
@@ -72,7 +72,7 @@ const App = () => {
         <Route path="/legal" element={<LegalLayout><MentionsLegales /></LegalLayout>} />
         <Route path="/privacy" element={<LegalLayout><PolitiqueConfidentialite /></LegalLayout>} />
         <Route path="/support" element={<LegalLayout><Support /></LegalLayout>} />
-        <Route path="/faq" element={<LegalLayout><FAQ /></LegalLayout>} />
+        {/* <Route path="/faq" element={<LegalLayout><FAQ /></LegalLayout>} /> */}
         <Route path="/cgu" element={<LegalLayout><CGU /></LegalLayout>} />
         <Route path="/cookies" element={<LegalLayout><Cookies /></LegalLayout>} />
 
