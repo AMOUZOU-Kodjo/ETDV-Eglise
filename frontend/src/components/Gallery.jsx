@@ -41,7 +41,12 @@ import {
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import toast, { Toaster } from "react-hot-toast";
+import ReactPlayer from 'react-player';
 
+// ==================== FONCTIONS POUR SOUNDCLOUD ====================
+const isSoundCloudUrl = (url) => {
+  return url?.includes('soundcloud.com') || url?.includes('snd.sc');
+};
 // ==================== FONCTIONS UTILITAIRES POUR YOUTUBE ====================
 const getYouTubeEmbedUrl = (url) => {
   if (!url) return null;
@@ -371,43 +376,71 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
           </div>
         )}
 
-        {type === 'audios' && (
-          <div className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex items-end space-x-1 h-24">
-                {[...Array(20)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1.5 rounded-t-full transition-all duration-300 ${
-                      isPlaying ? 'animate-pulse' : ''
-                    }`}
-                    style={{
-                      height: `${Math.sin(i * 0.5) * 30 + 40}%`,
-                      backgroundColor: isPlaying ? '#22c55e' : '#94a3b8',
-                      animationDelay: `${i * 0.1}s`
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPlay(item);
-                }}
-                className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-              >
-                {isPlaying ? (
-                  <Pause className="w-8 h-8 text-white" />
-                ) : (
-                  <Play className="w-8 h-8 text-white ml-1" />
-                )}
-              </button>
-            </div>
+        // Dans MediaCard, remplacez la section des audios
+{type === 'audios' && (
+  <div className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}>
+    {isSoundCloudUrl(item.url) ? (
+      // Pour SoundCloud, afficher un aperçu stylisé
+      <>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 bg-orange-500/80 rounded-full flex items-center justify-center">
+            <Play className="w-8 h-8 text-white ml-1" />
           </div>
-        )}
+        </div>
+        <div className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+          <Headphones className="w-3 h-3" />
+          SoundCloud
+        </div>
+        {/* Vague audio décorative */}
+        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center gap-1 p-2">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1 bg-orange-500 rounded-t"
+              style={{ height: `${Math.random() * 30 + 10}%` }}
+            />
+          ))}
+        </div>
+      </>
+    ) : (
+      // Votre code existant pour les audios directs
+      <>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex items-end space-x-1 h-24">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className={`w-1.5 rounded-t-full transition-all duration-300 ${
+                  isPlaying ? 'animate-pulse' : ''
+                }`}
+                style={{
+                  height: `${Math.sin(i * 0.5) * 30 + 40}%`,
+                  backgroundColor: isPlaying ? '#22c55e' : '#94a3b8',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay(item);
+            }}
+            className="w-16 h-16 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+          >
+            {isPlaying ? (
+              <Pause className="w-8 h-8 text-white" />
+            ) : (
+              <Play className="w-8 h-8 text-white ml-1" />
+            )}
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+)}
 
         {/* Badge de type */}
         <div className={`absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 z-10`}>
@@ -687,74 +720,61 @@ const MediaModal = ({ item, type, isOpen, onClose, onNext, onPrev, hasNext, hasP
   </>
 )}
 
-                {type === 'audios' && (
-                  <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">
-                    <div className="relative w-40 h-40 mx-auto mb-8">
-                      <div className={`absolute inset-0 bg-gradient-to-r ${config.primary} rounded-full animate-pulse`} />
-                      <Headphones className={`w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${config.accent}`} />
-                    </div>
-                    
-                    <div className="text-center mb-8">
-                      <h3 className="text-2xl font-bold mb-2">{item.titre}</h3>
-                      <p className="text-base-content/70">{item.description}</p>
-                    </div>
+                // Dans MediaModal, remplacez la section audio
+{type === 'audios' && (
+  <div className="max-w-2xl w-full bg-base-200 rounded-2xl p-8">
+    {isSoundCloudUrl(item.url) ? (
+      // Lecteur SoundCloud intégré
+      <div className="space-y-4">
+        <div className="text-center mb-4">
+          <h3 className="text-2xl font-bold">{item.titre}</h3>
+          <p className="text-base-content/70">{item.description}</p>
+        </div>
+        <ReactPlayer
+          url={item.url}
+          width="100%"
+          height={166}
+          config={{
+            soundcloud: {
+              options: {
+                auto_play: true,
+                show_comments: false,
+                show_artwork: true,
+                color: '#ff5500'
+              }
+            }
+          }}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => {/* Optionnel */}}
+        />
+      </div>
+    ) : (
+      // Votre code existant pour les audios directs
+      <>
+        <div className="relative w-40 h-40 mx-auto mb-8">
+          <div className={`absolute inset-0 bg-gradient-to-r ${config.primary} rounded-full animate-pulse`} />
+          <Headphones className={`w-20 h-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${config.accent}`} />
+        </div>
+        
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold mb-2">{item.titre}</h3>
+          <p className="text-base-content/70">{item.description}</p>
+        </div>
 
-                    <div className="space-y-4">
-                      {/* Barre de progression */}
-                      <div className="flex items-center gap-2 text-sm">
-                        <span>0:00</span>
-                        <div className="flex-1 h-2 bg-base-300 rounded-full">
-                          <div className="w-1/3 h-full bg-gradient-to-r from-green-500 to-teal-500 rounded-full" />
-                        </div>
-                        <span>{item.duree}</span>
-                      </div>
-
-                      {/* Contrôles */}
-                      <div className="flex items-center justify-center gap-4">
-                        <button
-                          onClick={() => {/* Précédent */}}
-                          className="btn btn-circle btn-ghost"
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        
-                        <button
-                          onClick={handlePlayPause}
-                          className="btn btn-circle btn-primary btn-lg"
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-6 h-6" />
-                          ) : (
-                            <Play className="w-6 h-6 ml-1" />
-                          )}
-                        </button>
-                        
-                        <button
-                          onClick={() => {/* Suivant */}}
-                          className="btn btn-circle btn-ghost"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Volume */}
-                      <div className="flex items-center gap-2">
-                        <button onClick={toggleMute} className="btn btn-xs btn-ghost btn-circle">
-                          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                        </button>
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.1"
-                          value={volume}
-                          onChange={handleVolumeChange}
-                          className="range range-primary range-xs flex-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+        <audio
+          ref={audioRef}
+          controls
+          className="w-full"
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+        >
+          <source src={item.url} type="audio/mpeg" />
+        </audio>
+      </>
+    )}
+  </div>
+)}
               </div>
 
               {/* Panneau d'information */}
