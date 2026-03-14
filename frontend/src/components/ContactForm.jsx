@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, Loader } from "luc
 
 // Constantes de configuration
 // Pour Vercel, on utilise l'URL relative car l'API est sur le même domaine
-const API_ENDPOINT = "/api/users/contact"; // Changé de localhost:5000 à /api/contact
+const API_ENDPOINT = "/api/contact"; // Changé de localhost:5000 à /api/contact
 
 const CHURCH_INFO = {
   name: "Église Temple du Dieu Vivant",
