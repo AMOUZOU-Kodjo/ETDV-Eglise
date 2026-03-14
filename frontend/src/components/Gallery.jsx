@@ -360,10 +360,10 @@ const MediaCard = ({
             )}
           </div>
         )}
-        // Dans MediaCard, remplacez la section des audios
+        
         {type === "audios" && (
           <div
-            className={`relative w-full h-full bg-gradient-to-br ${config.secondary}`}
+            className={`relative w-full h-full bg-linear-to-br ${config.secondary}`}
           >
             {isSoundCloudUrl(item.url) ? (
               // Pour SoundCloud, afficher un aperçu stylisé
