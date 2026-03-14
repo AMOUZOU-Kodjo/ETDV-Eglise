@@ -207,7 +207,7 @@ const DEMO_MEDIA = {
       titre: "Enseignement sur la Prière",
       description: "Comment prier efficacement",
       // Audios de démonstration fonctionnels
-      url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav",
+      url: "https://soundcloud.com/marcelin-amouzou/vid_20250809_104253?utm_source=clipboard&utm_campaign=wtshare&utm_medium=widget&utm_content=https%253A%252F%252Fsoundcloud.com%252Fmarcelin-amouzou%252Fvid_20250809_104253",
       date: "2024-03-11",
       duree: "01:00",
       telechargements: 56,
