@@ -152,34 +152,10 @@ const DEMO_MEDIA = {
       vues: 189,
       likes: 43,
       tags: ["jeunes", "rencontre", "etude"]
-    },
-    {
-      id: "photo3",
-      titre: "Baptême",
-      description: "Cérémonie de baptême",
-      url: "https://images.unsplash.com/photo-1473177104440-ffee2f376954?w=800",
-      date: "2024-03-05",
-      telechargements: 67,
-      vues: 456,
-      likes: 89,
-      tags: ["bapteme", "ceremonie"]
     }
   ],
   videos: [
-    {
-      id: "video1",
-      titre: "Message du Pasteur",
-      description: "Enseignement sur la foi",
-      // Vidéo de démonstration fonctionnelle
-      url: "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      thumbnail: "https://storage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
-      date: "2024-03-12",
-      duree: "09:56",
-      telechargements: 23,
-      vues: 567,
-      likes: 78,
-      tags: ["message", "enseignement"]
-    },
+
     {
       id: "video2",
       titre: "Louange et Adoration",
@@ -232,18 +208,7 @@ const DEMO_MEDIA = {
       likes: 54,
       tags: ["chant", "louange"]
     },
-    {
-      id: "audio3",
-      titre: "Méditation Matinale",
-      description: "Moment de recueillement",
-      url: "https://www2.cs.uic.edu/~i101/SoundFiles/CantinaBand60.wav",
-      date: "2024-03-05",
-      duree: "01:00",
-      telechargements: 38,
-      vues: 198,
-      likes: 45,
-      tags: ["meditation", "matin"]
-    }
+    
   ]
 };
 
@@ -324,7 +289,7 @@ const MediaCard = ({ item, type, index, onOpen, onDownload, onLike, isLiked, isP
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
         )}
 
