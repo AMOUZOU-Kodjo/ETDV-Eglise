@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo } from "react";
-import axios from "axios";
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, Loader } from "lucide-react";
 
 // Constantes de configuration
-const API_ENDPOINT = import.meta.env.VITE_API_URL || "http://localhost:5000/contact";
+// Pour Vercel, on utilise l'URL relative car l'API est sur le même domaine
+const API_ENDPOINT = "/api/contact"; // Changé de localhost:5000 à /api/contact
+
 const CHURCH_INFO = {
   name: "Église Temple du Dieu Vivant",
   email: "contact@eglise.com",
@@ -42,7 +43,6 @@ const ContactForm = () => {
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Effacer le message de statut quand l'utilisateur commence à taper
     if (status.message) setStatus({ type: null, message: "" });
   }, [status.message]);
 
@@ -55,7 +55,6 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
     const errors = validateForm();
     if (errors.length > 0) {
       setStatus({ 
@@ -69,28 +68,34 @@ const ContactForm = () => {
     setStatus({ type: "info", message: "Envoi en cours..." });
 
     try {
-      const response = await axios.post(API_ENDPOINT, formData, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 10000 // 10 secondes timeout
+      // Utilisation de fetch au lieu d'axios (plus léger)
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (response.data?.success) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         setStatus({ 
           type: "success", 
           message: "Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais." 
         });
         resetForm();
       } else {
-        throw new Error("Erreur lors de l'envoi");
+        throw new Error(data.error || "Erreur lors de l'envoi");
       }
     } catch (error) {
       console.error("Erreur de soumission:", error);
       
       let errorMessage = "Une erreur est survenue. Veuillez réessayer.";
-      if (error.code === "ECONNABORTED") {
-        errorMessage = "La requête a pris trop de temps. Veuillez réessayer.";
-      } else if (!error.response) {
-        errorMessage = "Impossible de joindre le serveur. Vérifiez votre connexion.";
+      if (!navigator.onLine) {
+        errorMessage = "Pas de connexion internet. Vérifiez votre réseau.";
+      } else if (error.message === "Failed to fetch") {
+        errorMessage = "Impossible de joindre le serveur. Veuillez réessayer plus tard.";
       }
       
       setStatus({ type: "error", message: errorMessage });
@@ -126,7 +131,6 @@ const ContactForm = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
-        
         <p className="text-lg text-base-content/70">
           Nous sommes là pour répondre à vos questions et prier avec vous
         </p>
@@ -309,8 +313,6 @@ const ContactInfo = ({ icon: Icon, href, text, label }) => {
   return content;
 };
 
-// Ajoutez ces styles dans votre fichier CSS global
-
 const styles = `
 @keyframes slideIn {
   from {
@@ -327,4 +329,5 @@ const styles = `
   animation: slideIn 0.3s ease-out;
 }
 `;
+
 export default ContactForm;
