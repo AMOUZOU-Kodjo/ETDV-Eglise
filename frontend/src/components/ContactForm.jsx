@@ -266,7 +266,7 @@ const FormField = ({ label, name, type, value, onChange, placeholder, rows, requ
           rows={rows}
           required={required}
           disabled={disabled}
-          className={`${baseClassName} resize-none min-h-[120px]`}
+          className={`${baseClassName} resize-none min-h-30`}
         />
       ) : (
         <input
