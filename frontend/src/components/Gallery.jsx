@@ -179,7 +179,7 @@ const DEMO_MEDIA = {
       id: "video2",
       titre: "Louange et Adoration",
       description: "Moment de louange",
-      url: "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      url: "https://www.youtube.com/watch?v=YnCuqwnhS0k",
       thumbnail: "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
       date: "2024-03-09",
       duree: "15:14",
