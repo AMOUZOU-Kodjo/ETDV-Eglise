@@ -341,14 +341,14 @@ const ContactForm = () => {
             Nous sommes là pour répondre à vos questions et prier avec vous
           </motion.p>
 
-          {/* Bouton historique
+          {/* Bouton historique */}
           <button
             onClick={() => setShowHistory(!showHistory)}
             className="mt-4 btn btn-sm btn-outline gap-2"
           >
             <Clock className="w-4 h-4" />
             {showHistory ? "Masquer l'historique" : "Voir mes derniers messages"}
-          </button> */}
+          </button>
         </div>
 
         Historique des soumissions
@@ -550,7 +550,7 @@ const ContactForm = () => {
 
               <button
                 type="submit"
-                disabled={loading || Object.keys(fieldErrors).length > 0}
+                // disabled={loading || Object.keys(fieldErrors).length > 0}
                 className="btn btn-accent w-full group relative overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <span className="flex items-center justify-center space-x-2">
