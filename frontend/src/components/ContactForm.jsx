@@ -36,8 +36,8 @@ const CHURCH_INFO = {
   mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3973.123456!2d0.914092!3d6.683333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1026bf002690c053%3A0x34ca13adae2ad0f!2sETDV+BANIKOP%C3%89+(Temple+B%C3%A9thel),+Togo!5e0!3m2!1sfr!2stg!4v1690000000000!5m2!1sfr!2stg",
   hours: [
     { day: "Lundi - Vendredi", hours: "09:00 - 18:00" },
-    { day: "Samedi", hours: "09:00 - 12:00" },
-    { day: "Dimanche", hours: "Fermé" }
+    { day: "Samedi", hours: "18:00 - 19:30" },
+    { day: "Dimanche", hours: "09:00 - 12:00" }
   ]
 };
 
@@ -328,7 +328,7 @@ const ContactForm = () => {
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-primary to-accent bg-clip-text text-transparent"
           >
             Contactez-nous
           </motion.h1>
@@ -342,13 +342,13 @@ const ContactForm = () => {
           </motion.p>
 
           {/* Bouton historique */}
-          <button
+          {/* <button
             onClick={() => setShowHistory(!showHistory)}
             className="mt-4 btn btn-sm btn-outline gap-2"
           >
             <Clock className="w-4 h-4" />
             {showHistory ? "Masquer l'historique" : "Voir mes derniers messages"}
-          </button>
+          </button> */}
         </div>
 
         Historique des soumissions
@@ -431,14 +431,14 @@ const ContactForm = () => {
                 />
 
                 {/* Horaires */}
-                <div className="border-t border-base-300 pt-4">
+                <div className="border-t border-base-300 pt-4 ">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-accent" />
                     Horaires d'ouverture
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-2 text-sm ">
                     {CHURCH_INFO.hours.map((schedule, index) => (
-                      <div key={index} className="flex justify-between">
+                      <div key={index} className="flex justify-between ">
                         <span className="text-base-content/60">{schedule.day}</span>
                         <span className="font-medium">{schedule.hours}</span>
                       </div>
@@ -658,7 +658,7 @@ const FormField = ({
             rows={rows}
             required={required}
             disabled={disabled}
-            className={`${baseClassName} resize-none min-h-[120px]`}
+            className={`${baseClassName} resize-none min-h-30`}
           />
         ) : (
           <input

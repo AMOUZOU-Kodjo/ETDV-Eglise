@@ -10,7 +10,7 @@ const NavBar = () => {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
-    };
+    }; 
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -64,7 +64,7 @@ const NavBar = () => {
           </Link>
 
           {/* Menu Desktop */}
-          <ul className="hidden sm:flex items-center space-x-1 md:space-x-2 lg:space-x-4">
+          <ul className=" hidden sm:flex items-center space-x-1 md:space-x-2 lg:space-x-4">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = isActiveLink(link.to);
