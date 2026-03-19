@@ -5,6 +5,8 @@ import NavBar from "./NavBar";
 import Footer from "./Footer";
 import CommunityDashboard from './Dashboad/CommunityDashboard';
 
+import { Link } from 'react-router-dom';
+
 // Constantes pour la configuration
 const ABOUT_CONFIG = {
   sections: [
@@ -197,7 +199,7 @@ const About = () => {
         </section>
 
         {/* Call-to-Action */}
-        <section className="bg-gradient-to-r from-accent to-accent/80 py-16">
+        <section className="bg-linear-to-r from-accent to-accent/80 py-16">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold text-white mb-4">
               Rejoignez Notre Communauté
@@ -205,9 +207,11 @@ const About = () => {
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
               Venez partager avec nous la joie de la foi et de l'amour du Christ
             </p>
-            <button className="btn btn-outline btn-lg text-white border-white hover:bg-white hover:text-accent transition-all duration-300">
+
+            
+            <Link to="/visite" className="btn btn-outline btn-lg text-white border-white hover:bg-white hover:text-accent transition-all duration-300">
               Nous rendre visite
-            </button>
+            </Link>
           </div>
         </section>
       </main>

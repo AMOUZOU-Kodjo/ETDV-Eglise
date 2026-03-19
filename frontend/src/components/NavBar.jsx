@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Home, Info, Calendar, BookOpen, Image, Phone } from 'lucide-react';
+import { Menu, X, Home, Info, Calendar, BookOpen, Image, Phone, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext'; // Import du hook useTheme
 
 const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { isDarkMode, toggleTheme } = useTheme(); // Utilisation du contexte de thème
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +57,7 @@ const NavBar = () => {
       }
     `}>
       <div className="container mx-auto px-4">
-        <div className=" flex justify-between items-center">
+        <div className="flex justify-between items-center">
           {/* Logo */}
           <Link 
             to="/" 
@@ -64,87 +67,131 @@ const NavBar = () => {
           </Link>
 
           {/* Menu Desktop */}
-          <ul className=" hidden sm:flex items-center space-x-1 md:space-x-2 lg:space-x-4">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isActiveLink(link.to);
-              
-              return (
-                <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    className={`
-                      flex items-center space-x-1 px-3 py-2 text-base md:text-lg rounded-lg 
-                      transition-all duration-300 group relative
-                      ${isActive 
-                        ? 'text-accent bg-accent/10' 
-                        : 'hover:bg-accent/10 hover:text-accent'
-                      }
-                    `}
-                  >
-                    <Icon className={`
-                      w-4 h-4 md:w-5 md:h-5 transition-transform
-                      ${isActive ? 'scale-110' : 'group-hover:scale-110'}
-                    `} />
-                    <span>{link.label}</span>
-                    
-                    {/* Indicateur de page active */}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-accent rounded-full" />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="hidden lg:flex items-center space-x-1 md:space-x-2 lg:space-x-4">
+            <ul className="flex items-center space-x-1 md:space-x-2 lg:space-x-4">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = isActiveLink(link.to);
+                
+                return (
+                  <li key={link.to}>
+                    <Link
+                      to={link.to}
+                      className={`
+                        flex items-center space-x-1 px-3 py-2 text-base md:text-lg rounded-lg 
+                        transition-all duration-300 group relative
+                        ${isActive 
+                          ? 'text-accent bg-accent/10' 
+                          : 'hover:bg-accent/10 hover:text-accent'
+                        }
+                      `}
+                    >
+                      <Icon className={`
+                        w-4 h-4 md:w-5 md:h-5 transition-transform
+                        ${isActive ? 'scale-110' : 'group-hover:scale-110'}
+                      `} />
+                      <span>{link.label}</span>
+                      
+                      {/* Indicateur de page active */}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-accent rounded-full" />
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-          {/* Bouton hamburger */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="sm:hidden p-2 hover:bg-accent/10 rounded-lg transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+            {/* Bouton de thème pour desktop */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="ml-2 p-2 rounded-lg bg-base-300 hover:bg-base-400 transition-colors"
+              aria-label="Changer le thème"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-blue-500" />
+              )}
+            </motion.button>
+          </div>
+
+          {/* Mobile - Menu et bouton thème */}
+          <div className="flex items-center gap-2 lg:hidden">
+            {/* Bouton de thème pour mobile */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-base-300 hover:bg-base-400 transition-colors"
+              aria-label="Changer le thème"
+            >
+              {isDarkMode ? (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Moon className="w-5 h-5 text-blue-500" />
+              )}
+            </motion.button>
+
+            {/* Bouton hamburger */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 lg:hidden hover:bg-accent/10 rounded-lg transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Menu Mobile */}
-        <div
-          className={`
-            sm:hidden overflow-hidden transition-all duration-300 ease-in-out
-            ${isMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'}
-          `}
-        >
-          <ul className="flex flex-col space-y-2 pb-4">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = isActiveLink(link.to);
-              
-              return (
-                <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    className={`
-                      flex items-center space-x-3 px-4 py-3 text-lg rounded-lg 
-                      transition-colors
-                      ${isActive 
-                        ? 'text-accent bg-accent/10' 
-                        : 'hover:bg-accent/10 hover:text-accent'
-                      }
-                    `}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span>{link.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {/* Menu Mobile avec animation */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="lg:hidden overflow-hidden"
+            >
+              <ul className="flex flex-col space-y-2 py-4">
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = isActiveLink(link.to);
+                  
+                  return (
+                    <motion.li
+                      key={link.to}
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <Link
+                        to={link.to}
+                        className={`
+                          flex items-center space-x-3 px-4 py-3 text-lg rounded-lg 
+                          transition-colors
+                          ${isActive 
+                            ? 'text-accent bg-accent/10' 
+                            : 'hover:bg-accent/10 hover:text-accent'
+                          }
+                        `}
+                      >
+                        <Icon className="w-5 h-5" />
+                        <span>{link.label}</span>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );

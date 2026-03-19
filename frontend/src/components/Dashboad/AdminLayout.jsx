@@ -10,10 +10,13 @@ import {
   Users,
   Settings,
   LogOut,
-  Bell
+  Bell,
+  Church,
+  Users2
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -24,14 +27,16 @@ const AdminLayout = ({ children }) => {
     { path: "/dashboardadmin", icon: LayoutDashboard, label: "Dashboard" },
     { path: "/galleryadmin", icon: Image, label: "Galerie" },
     { path: "/eventsadmin", icon: Calendar, label: "Événements" },
-    { path: "/usersadmin", icon: Users, label: "Utilisateurs" },
-    { path: "/settingsadmin", icon: Settings, label: "Paramètres" }
+    { path: "/admin/users", icon: Users, label: "Utilisateurs" },
+    { path: "/community-dashboard", icon: Users2, label: "Communauté" },
+    { path: "/admin/visiteurs", icon: Church, label: "Visiteurs" },
+    { path: "/admin/settings", icon: Settings, label: "Paramètres" }
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
     toast.success("Déconnexion réussie");
-    navigate("/admin");
+    navigate("/login");
   };
 
   return (

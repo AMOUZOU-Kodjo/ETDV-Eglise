@@ -25,12 +25,15 @@ import {
   AlertCircle,
   Loader,
   Heart,
-  ChevronUp
+  ChevronUp,
+  Sun,
+  Moon
 } from "lucide-react";
 import monImage from "../assets/logo.jpg";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import { useTheme } from "../context/ThemeContext"; // Import du hook useTheme
 
 // ==================== CONFIGURATION ====================
 const FOOTER_CONFIG = {
@@ -236,13 +239,36 @@ const BackToTop = () => {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0 }}
           onClick={scrollToTop}
-          className="fixed bottom-4 right-4 p-3 bg-accent text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50 group"
+          className="fixed bottom-20 right-4 p-3 bg-accent text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50 group"
           aria-label="Retour en haut"
         >
           <ChevronUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
         </motion.button>
       )}
     </AnimatePresence>
+  );
+};
+
+// ==================== COMPOSANT THEME_TOGGLE_MINI ====================
+// Petit bouton de thème optionnel pour le footer (si vous voulez un second point de contrôle)
+const ThemeToggleMini = () => {
+  const { isDarkMode, toggleTheme } = useTheme();
+  
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={toggleTheme}
+      className="p-2 rounded-lg bg-base-300 hover:bg-base-400 transition-colors"
+      aria-label="Changer le thème"
+      title={isDarkMode ? "Passer en mode clair" : "Passer en mode sombre"}
+    >
+      {isDarkMode ? (
+        <Sun className="w-4 h-4 text-yellow-500" />
+      ) : (
+        <Moon className="w-4 h-4 text-blue-500" />
+      )}
+    </motion.button>
   );
 };
 
@@ -255,6 +281,7 @@ const Footer = () => {
   });
   const [showFullLinks, setShowFullLinks] = useState(false);
   const location = useLocation();
+  const { isDarkMode } = useTheme(); // Utilisation du thème pour d'éventuels ajustements
 
   // Charger les données
   useEffect(() => {
@@ -317,7 +344,7 @@ const Footer = () => {
         }}
       />
 
-      <footer className="relative bg-base-200 text-base-content pt-16 pb-8 overflow-hidden">
+      <footer className="relative bg-base-200 text-base-content pt-16 pb-8 overflow-hidden transition-colors duration-300">
         {/* Motif de fond décoratif */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -327,7 +354,7 @@ const Footer = () => {
         </div>
 
         {/* Bande décorative en haut */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-accent via-pink-500 to-accent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-pink-500 to-accent" />
 
         <div className="container mx-auto px-4 relative z-10">
           {/* Section principale */}
@@ -386,7 +413,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Navigation</span>
-                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
               </h3>
               
               <ul className="space-y-2">
@@ -454,7 +481,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Contact</span>
-                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
               </h3>
 
               <ul className="space-y-3">
@@ -511,7 +538,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Newsletter</span>
-                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
               </h3>
 
               <p className="text-sm text-base-content/70 mb-4">
@@ -520,10 +547,10 @@ const Footer = () => {
 
               <NewsletterForm onSubscribe={handleSubscribe} />
 
-              {/* Réseaux sociaux */}
+              {/* Réseaux sociaux et thème */}
               <div className="mt-6">
                 <h4 className="text-sm font-semibold mb-3">Suivez-nous</h4>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {FOOTER_CONFIG.socialLinks.map((social, index) => {
                     const Icon = social.icon;
                     return (
@@ -543,13 +570,18 @@ const Footer = () => {
                       </motion.a>
                     );
                   })}
+                  
+                  {/* Bouton thème optionnel dans le footer */}
+                  <div className="ml-auto">
+                    <ThemeToggleMini />
+                  </div>
                 </div>
               </div>
             </motion.div>
           </div>
 
           {/* Séparateur */}
-          <div className="w-full h-px bg-linear-to-r from-transparent via-accent to-transparent my-8" />
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-accent to-transparent my-8" />
 
           {/* Copyright et mentions */}
           <motion.div

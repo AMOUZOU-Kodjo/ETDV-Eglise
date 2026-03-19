@@ -22,6 +22,7 @@ import NavBar from "./NavBar";
 import Title from "./Title";
 import CalendarButton from "./CalendarButton";
 import Footer from "./Footer";
+import { Link } from 'react-router-dom';
 
 // ==================== CONFIGURATION ====================
 const PROGRAM_CONFIG = {
@@ -978,7 +979,12 @@ const Programs = () => {
                   className="btn btn-lg bg-white text-accent hover:bg-white/90 border-0"
                 >
                   <Users className="w-5 h-5 mr-2" />
-                  Nous contacter
+                  <Link
+                                              to="/contact"
+                                              >
+                                              Nous contacter
+                                            </Link>
+                  
                 </motion.button>
               </div>
             </motion.div>

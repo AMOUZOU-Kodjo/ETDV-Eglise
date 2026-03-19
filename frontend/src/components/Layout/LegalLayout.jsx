@@ -132,7 +132,7 @@ const LegalLayout = ({ children, title, subtitle, icon: Icon }) => {
         </section>
       </main>
 
-      <Footer />
+      
     </>
   );
 };
