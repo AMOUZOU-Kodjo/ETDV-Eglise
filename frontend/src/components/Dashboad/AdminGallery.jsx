@@ -728,7 +728,7 @@ const AdminGallery = () => {
                     )}
                     
                     {activeTab === "audios" && (
-                      <div className="w-full h-full bg-gradient-to-br from-green-500/20 to-teal-500/20 flex items-center justify-center">
+                      <div className="w-full h-full bg-linear-to-br from-green-500/20 to-teal-500/20 flex items-center justify-center">
                         <Headphones className="w-16 h-16 text-accent/50" />
                       </div>
                     )}

@@ -332,7 +332,7 @@ const Footer = () => {
 
   return (
     <>
-      <Toaster
+      {/* <Toaster
         position="bottom-right"
         toastOptions={{
           duration: 4000,
@@ -342,7 +342,7 @@ const Footer = () => {
             border: '1px solid hsl(var(--b3))',
           },
         }}
-      />
+      /> */}
 
       <footer className="relative bg-base-200 text-base-content pt-16 pb-8 overflow-hidden transition-colors duration-300">
         {/* Motif de fond décoratif */}
@@ -354,7 +354,7 @@ const Footer = () => {
         </div>
 
         {/* Bande décorative en haut */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent via-pink-500 to-accent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-accent via-pink-500 to-accent" />
 
         <div className="container mx-auto px-4 relative z-10">
           {/* Section principale */}
@@ -373,7 +373,7 @@ const Footer = () => {
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   src={monImage}
                   alt="Logo Église"
-                  className="w-16 h-16 rounded-full border-3 border-accent shadow-lg"
+                  className="w-10 h-10 rounded-full border border-accent shadow-lg"
                 />
                 <div>
                   <h3 className="text-lg font-bold text-accent">
@@ -413,7 +413,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Navigation</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
               </h3>
               
               <ul className="space-y-2">
@@ -481,7 +481,7 @@ const Footer = () => {
             >
               <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
                 <span>Contact</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-accent to-transparent" />
+                <div className="h-px flex-1 bg-linear-to-r from-accent to-transparent" />
               </h3>
 
               <ul className="space-y-3">

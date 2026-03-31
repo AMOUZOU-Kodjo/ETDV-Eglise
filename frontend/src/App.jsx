@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminSettings from './components/Dashboad/AdminSettings';
 import UserManagement from './components/Dashboad/UserManagement';
+import MediaPage from './pages/MediaPage';
+
 // Components principaux
 import NavBar from "./components/NavBar";
 import About from "./components/About";
@@ -92,6 +94,7 @@ const App = () => {
               <Route path="/gallery" element={<PublicLayout><Gallery /></PublicLayout>} />
               <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
               <Route path="/visite" element={<PublicLayout><VisitPage /></PublicLayout>} />
+              <Route path="/mediatheque" element={<PublicLayout><MediaPage /></PublicLayout>} />
 
               {/* Routes légales */}
               <Route path="/legal" element={<LegalLayout><MentionsLegales /></LegalLayout>} />
